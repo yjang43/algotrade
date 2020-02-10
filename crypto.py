@@ -16,6 +16,38 @@ exchange.apiKey = ''
 exchange.secret = ''
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
+def check():
+    recentma = dfma.iloc[dfma.shape[0]-1]
+    recentsma10 = recentma[0]
+    recentema10 = recentma[1]
+    recentema20 = recentma[2]
+    recentema50 = recentma[3]
+    buysignal = False
+    sellsignal = False
+    above50 = False
+    above20 = False
+    if(recentema10 > recentema50):
+        above50 = True
+    else:
+        above50 = False
+
+    if(above20 == False and above50 == True and recentema10 > recentema20):
+        above20 = True
+        buysignal = True
+    elif(above20 == True and above50 == False and recentema10 < recentema20):
+        above20 == False
+        sellsignal = True
+    elif(recentema10 > recentema20):
+        above20 = True
+    elif(recentema10 < recentema20):
+        above20 = False
+
+    #BUY : 9EMA over the 21 while already above 55
+    #SELL : 9 crosses below 21 while already below 55
+
+    return buysignal,sellsignal
+    
+
 
 if exchange.has['fetchOHLCV']:
     #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
@@ -38,6 +70,7 @@ if exchange.has['fetchOHLCV']:
     dfma = pd.concat([sma10,ema10,ema20,ema50], axis = 1)
     dfma.columns = ['sma10', 'ema10', 'ema20', 'ema50']
     print(dfma)
+    print(check())
     balance = exchange.fetch_balance()
     #print(balance)
     dfbalance = pd.Series(balance)
@@ -105,17 +138,15 @@ tradetime = []
 tradesymbol = []
 tradeamount = []
 tradeside = []
-selltrades = pd.DataFrame
 if exchange.has['fetchMyTrades']:
     for val in coinsowned:
         if(val!= "BTC" and val!= "SBTC" and val != "VTHO" and val != "BCX"):
-            tradess = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 86400000, limit = 10, params = {})
+            tradess = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 864000000, limit = 10, params = {})
             for trade in tradess:
-                if(trade.get("side") == "sell"):
-                    tradetime.append(trade.get("datetime"))
-                    tradesymbol.append(trade.get("symbol"))
-                    tradeamount.append(trade.get("amount"))
-                    tradeside.append(trade.get("side"))          
+                tradetime.append(trade.get("datetime"))
+                tradesymbol.append(trade.get("symbol"))
+                tradeamount.append(trade.get("amount"))
+                tradeside.append(trade.get("side"))          
         #print("At " + trade.get("datetime") + " : " + trade.get("symbol") + " : " + str(trade.get("amount")) + " " + trade.get("side") + " at " + str(trade.get("price")))
 dftrades = pd.DataFrame()
 dftrades['tradetime'] = tradetime
