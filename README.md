@@ -5,20 +5,17 @@
 ```
 pip3 install pandas
 pip3 install numpy
-```
-robin hood stock broker wrapper package
 
-
-http://www.robin-stocks.com/en/latest/
-
-
-Warning: The webpage may not be up to date at some point
-```
-pip3 install robin_stocks
+# https://github.com/ccxt/ccxt
+# crypto currency wrapper
+pip3 install ccxt
 ```
 
 ## Run
 ```
-python3 example.py
+python3 application.py
 ```
 
+## Overview
+This script is to help users manage cryptocurrency account, visualize its data, and most importantly allow user to automate trade using various algorithm to make the most margin.
+Currently developing algorithms are EMA/SMA and VAR with Granger Causality.
