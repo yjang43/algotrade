@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from gui.pages import AccountPage
+from gui.account import AccountPage
 from gui.auto_trade import AutoTradePage
 from gui.data_visualization import DataVisualizationPage
 

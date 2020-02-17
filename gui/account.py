@@ -1,15 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from pyqtgraph import *
-
-
-class PageWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setFixedSize(800, 400)
-        self.setLayout(QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
+from gui.pages import *
 
 
 class AccountPage(PageWidget):
@@ -27,7 +16,6 @@ class AccountPage(PageWidget):
         self.layout().addWidget(self.set_panel1())
         self.layout().addWidget(self.set_panel2())
         self.layout().addWidget(self.set_panel3())
-        self.setLayout(self.layout())
 
     def set_panel1(self):
         panel = QWidget()
@@ -36,7 +24,7 @@ class AccountPage(PageWidget):
 
         # user icon
         user_icon = QLabel()
-        icon_image = QPixmap('profileIcon.png')
+        icon_image = QPixmap('gui/profileIcon.png')
         user_icon.setPixmap(icon_image)
         user_icon.setScaledContents(True)
         user_icon.setFixedSize(100, 100)
@@ -82,7 +70,7 @@ class AccountPage(PageWidget):
         page = QWidget()
         page.setFixedSize(250, 450)
         page.setLayout(QVBoxLayout())
-        history_label = QLabel("History")
+        history_label = QLabel("Log")
         history_label.setFixedSize(250, 30)
         history = QListWidget()
         history.setFixedSize(250, 400)
