@@ -5,27 +5,83 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
+from threading import Timer
+from time import sleep
 
-exchange = ccxt.binance()
-markets = exchange.load_markets()
-symbols = exchange.symbols
-currencies = exchange.currencies
+class RepeatedTimer(object):
+    def __init__(self, interval, function):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.is_running = False
+        self.start()
 
-#authentication and login
-exchange.apiKey = ''
-exchange.secret = ''
-pd.set_option('display.float_format', lambda x: '%.5f' % x)
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function()
 
-def check():
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
+
+
+def emacheck():
+    if exchange.has['fetchOHLCV']:
+        #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
+        #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
+        #make a list of the past sma
+        ohlcvlist = exchange.fetch_ohlcv("ETH/BTC", '1d')
+        #ohlcvlist.reverse() #newest first
+        #print((ohlcvlist))
+
+        dfohlcv = pd.DataFrame.from_records(ohlcvlist)
+        dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        dfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/ohlcv.csv', header=True)
+
+        plist = pd.Series(v[4] for v in ohlcvlist)
+        sma10 = plist.rolling(window = 10).mean()
+        ema10 = plist.ewm(span = 10).mean() #10 ewm
+        ema20 = plist.ewm(span = 20).mean() #20 ewm
+        ema50 = plist.ewm(span = 50).mean() #50 ewm
+
+
+        dfma = pd.concat([sma10,ema10,ema20,ema50], axis = 1)
+        dfma.columns = ['sma10', 'ema10', 'ema20', 'ema50']
+        print(dfma)
+        dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/1dayma.csv', header=True)
+
     recentma = dfma.iloc[dfma.shape[0]-1]
     recentsma10 = recentma[0]
     recentema10 = recentma[1]
     recentema20 = recentma[2]
     recentema50 = recentma[3]
+    prevma = dfma.iloc[dfma.shape[0]-2]
+    prevsma10 = prevma[0]
+    prevema10 = prevma[1]
+    prevema20 = prevma[2]
+    prevema50 = prevma[3]
+
+    if(prevema10 > prevema50):
+        above50 = True
+    else:
+        above50 = False
+
+    if(prevema10 > prevema20):
+        above20 = True
+    else:
+        above20 = False
+
     buysignal = False
     sellsignal = False
-    above50 = False
-    above20 = False
+    
     if(recentema10 > recentema50):
         above50 = True
     else:
@@ -44,54 +100,55 @@ def check():
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55
+    print(buysignal, sellsignal)
+    if(buysignal):
+        buy()
+    elif(sellsignal):
+        sell()
 
     return buysignal,sellsignal
-    
 
 
-if exchange.has['fetchOHLCV']:
-    #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
-    #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
-    #make a list of the past sma
-    smalist = pd.Series()
+def buy():
+    print("BUY")
+    # exchange.createMarketBuyOrder("ETH/BTC", 0.01)
+def sell():
+    print("SELL")
+    # exchange.createMarketBuyOrder("ETH/BTC", 0.01)
 
-    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
-    #ohlcvlist.reverse() #newest first
-    print(len(ohlcvlist))
 
-    plist = pd.Series(v[4] for v in ohlcvlist)
-    sma10 = plist.rolling(window = 10).mean()
-    ema10 = plist.ewm(span = 10).mean() #10 ewm
-    ema20 = plist.ewm(span = 20).mean() #20 ewm
-    ema50 = plist.ewm(span = 50).mean() #50 ewm
+exchange = ccxt.binance()
+markets = exchange.load_markets()
+symbols = exchange.symbols
+currencies = exchange.currencies
 
-    #print(sma10.tail(20))
+#authentication and login
+exchange.apiKey = ''
+exchange.secret = ''
+pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
-    dfma = pd.concat([sma10,ema10,ema20,ema50], axis = 1)
-    dfma.columns = ['sma10', 'ema10', 'ema20', 'ema50']
-    print(dfma)
-    print(check())
-    balance = exchange.fetch_balance()
-    #print(balance)
-    dfbalance = pd.Series(balance)
-    #print(exchange.privateGetAccounts(params))
-    #print(ccxt.exchanges)
 
-# if exchange.has['fetchOrders']:
-#     since = exchange.milliseconds () - 8640000  # -1 day from now
-#     # alternatively, fetch from a certain starting datetime
-#     # since = exchange.parse8601('2018-01-01T00:00:00Z')
-#     all_orders = []
-#     while since < exchange.milliseconds ():
-#         symbol = "ICX/BTC"  # change for your symbol
-#         limit = 10000000  # change for your limit
-#         orders = exchange.fetch_orders(symbol, since, limit)
-#         if len(orders): 
-#             since = orders[len(orders) - 1]['timestamp']
-#             all_orders += orders
-#         else:
-#             break
-#     print(len(all_orders))
+balance = exchange.fetch_balance()
+dfbalance = pd.Series(balance)
+#print(exchange.privateGetAccounts(params))
+#print(ccxt.exchanges)
+
+if exchange.has['fetchClosedOrders']:
+    since = exchange.milliseconds () - 8640000  # -1 day from now
+    # alternatively, fetch from a certain starting datetime
+    # since = exchange.parse8601('2018-01-01T00:00:00Z')
+    all_orders = []
+    while since < exchange.milliseconds ():
+        symbol = "ICX/BTC"  # change for your symbol
+        limit = 10000000  # change for your limit
+        orders = exchange.fetch_orders(symbol, since, limit)
+        if len(orders): 
+            since = orders[len(orders) - 1]['timestamp']
+            all_orders += orders
+        else:
+            break
+    print("Order Length : ")
+    print(len(all_orders))
 
 print("//////////////////////////////////////")
 
@@ -117,11 +174,14 @@ for items in dfbalance.items(): #print the coins that i own
 scoinsowned = pd.Series(coinsownedamount, coinsowned, name = 'amount')
 
 
-dfcoinsowned = pd.DataFrame()
-dfcoinsowned['balance'] = scoinsowned
-dfcoinsowned['in btc'] = coinsinbtc
-dfcoinsowned['in usd'] = coinsinusd
+dfcoinsowned = pd.DataFrame({
+        'balance' : scoinsowned,
+        'in btc' : coinsinbtc,
+        'in usd' : coinsinusd
+    })
 print(dfcoinsowned)
+dfcoinsowned.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/coinsowned.csv', header=True)
+
 
 balanceinusd = 0
 for val in dfcoinsowned["in usd"]:
@@ -141,19 +201,23 @@ tradeside = []
 if exchange.has['fetchMyTrades']:
     for val in coinsowned:
         if(val!= "BTC" and val!= "SBTC" and val != "VTHO" and val != "BCX"):
-            tradess = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 864000000, limit = 10, params = {})
-            for trade in tradess:
+            trades = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 864000000, limit = 10, params = {})
+            for trade in trades:
                 tradetime.append(trade.get("datetime"))
                 tradesymbol.append(trade.get("symbol"))
                 tradeamount.append(trade.get("amount"))
                 tradeside.append(trade.get("side"))          
         #print("At " + trade.get("datetime") + " : " + trade.get("symbol") + " : " + str(trade.get("amount")) + " " + trade.get("side") + " at " + str(trade.get("price")))
-dftrades = pd.DataFrame()
-dftrades['tradetime'] = tradetime
-dftrades['tradeside'] = tradeside
-dftrades['tradesymbol'] = tradesymbol
-dftrades['tradeamount'] = tradeamount
+dftrades = pd.DataFrame({
+        'tradetime': tradetime,
+        'tradeside': tradeside,
+        'tradesymbol': tradesymbol,
+        'tradeamount': tradeamount,
+    })
+dftrades = dftrades.sort_values(by = ['tradetime'], ascending = False)
 
+
+dftrades.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/trades.csv', header=True)
 print(dftrades)
 
 print("//////////////////////////////////////")
@@ -170,7 +234,12 @@ print(dftradessell)
 
 print("//////////////////////////////////////")
 
-
+print("starting...")
+rt = RepeatedTimer(60, emacheck) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
+# try:
+#     sleep() # your long-running job goes here...
+# finally:
+#     rt.stop() # better in a try/finally block to make sure the program ends!
 
 
 
