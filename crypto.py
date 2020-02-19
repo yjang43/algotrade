@@ -12,17 +12,19 @@ from time import sleep
 #Classes  :
 
 class RepeatedTimer(object):
-    def __init__(self, interval, function):
+    def __init__(self, interval, function, *args, **kwargs):
         self._timer     = None
         self.interval   = interval
         self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
         self.is_running = False
         self.start()
 
     def _run(self):
         self.is_running = False
         self.start()
-        self.function()
+        self.function(*self.args, **self.kwargs)
 
     def start(self):
         if not self.is_running:
@@ -34,7 +36,6 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
-
 #functions
 
 def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
@@ -42,7 +43,7 @@ def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
         #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
         #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
         #make a list of the past sma
-        ohlcvlist = exchange.fetch_ohlcv("ETH/BTC", '1d')
+        ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
         #ohlcvlist.reverse() #newest first
         #print((ohlcvlist))
 
@@ -104,11 +105,99 @@ def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
     #SELL : 9 crosses below 21 while already below 55
     print(buysignal, sellsignal)
     if(buysignal):
-        buy()
+        testbuy()
     elif(sellsignal):
-        sell()
+        testsell()
 
     return buysignal,sellsignal
+
+def testemacheck(testUSDbalance,testBTCbalance):
+    shortterm = 10
+    mediumterm = 20
+    longterm = 50
+    if exchange.has['fetchOHLCV']:
+        #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
+        #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
+        #make a list of the past sma
+        ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+        #ohlcvlist.reverse() #newest first
+        #print((ohlcvlist))
+
+        dfohlcv = pd.DataFrame.from_records(ohlcvlist)
+        dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        dfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/ohlcv.csv', header=True)
+
+        plist = pd.Series(v[4] for v in ohlcvlist)
+        shortma = plist.rolling(window = shortterm).mean()
+        shortema = plist.ewm(span = shortterm).mean() #10 ewm
+        mediumema = plist.ewm(span = mediumterm).mean() #20 ewm
+        longema = plist.ewm(span = longterm).mean() #50 ewm
+
+
+        dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
+        dfma.columns = ['Short-term MA (MA' + str(shortterm) + ')', 'Short-term EMA (EMA' + str(shortterm) + ')', 'Medium-term EMA (EMA' + str(mediumterm) + ')', 'Long-term EMA (EMA' + str(longterm) + ')']
+        #print(dfma)
+        dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/1dayma.csv', header=True)
+
+    recentma = dfma.iloc[dfma.shape[0]-1]
+    recentshortema = recentma[1]
+    recentmediumema = recentma[2]
+    recentlongema = recentma[3]
+    prevma = dfma.iloc[dfma.shape[0]-2]
+    prevshortema = prevma[1]
+    prevmediumema = prevma[2]
+    prevlongema = prevma[3]
+
+    if(prevshortema > prevlongema):
+        abovelong = True
+    else:
+        abovelong = False
+
+    if(prevshortema > prevmediumema):
+        abovemedium = True
+    else:
+        abovemedium = False
+
+    buysignal = False
+    sellsignal = False
+    
+    if(recentshortema > recentlongema):
+        abovelong = True
+    else:
+        abovelong = False
+
+    if(abovemedium == False and abovelong == True and recentshortema > recentmediumema):
+        abovemedium = True
+        buysignal = True
+    elif(abovemedium == True and abovelong == False and recentshortema < recentmediumema):
+        abovemedium == False
+        sellsignal = True
+    elif(recentshortema > recentmediumema):
+        abovemedium = True
+    elif(recentshortema < recentmediumema):
+        abovemedium = False
+
+    #BUY : 9EMA over the 21 while already above 55
+    #SELL : 9 crosses below 21 while already below 55
+    print("//////////////////////////////////////")
+
+    print(buysignal, sellsignal)
+    print("Your test USD Balance : " + str(testUSDbalance))
+    print("Your test BTC Balance : " + str(testBTCbalance))
+    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+    dfohlcv = pd.DataFrame.from_records(ohlcvlist)
+    dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+    totalb = testUSDbalance + (testBTCbalance*(dfohlcv.iloc[-1][4]))
+    print("Your total balance : " + str(totalb))
+
+    if(buysignal):
+        return(testbuy(testUSDbalance,testBTCbalance))
+    elif(sellsignal):
+        return(testsell(testUSDbalance,testBTCbalance))
+    else:
+        return(testUSDbalance, testBTCbalance)
+
+
 
 def getBalance(): 
     rate = exchange.fetch_ticker('BTC/USDT').get("bid")
@@ -186,15 +275,38 @@ def getRecentTrades():
     print("//////////////////////////////////////")
 
 
-def buy():
+def testbuy(testUSDbalance, testBTCbalance):
     print("BUY")
+    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+    dfohlcv = pd.DataFrame.from_records(ohlcvlist)
+    dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+    testBTCbalance = testBTCbalance + ((testUSDbalance)/(dfohlcv.iloc[-1][4]))
+    testUSDbalance = 0
+    return(testUSDbalance,testBTCbalance)
+
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
-def sell():
+def testsell(testUSDbalance, testBTCbalance):
     print("SELL")
+    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+    dfohlcv = pd.DataFrame.from_records(ohlcvlist)
+    dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+    testUSDbalance = testUSDbalance + testBTCbalance*(dfohlcv.iloc[-1][4])
+    testBTCbalance = 0
+    return(testUSDbalance,testBTCbalance)
+
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
 
 
-
+def test():
+    testUSDbalance = 0
+    testBTCbalance = 1000
+    while True : 
+        lol = testemacheck(testUSDbalance,testBTCbalance)
+        testUSDbalance = lol[0]
+        testBTCbalance = lol[1]
+        time.sleep(5)
+    #rt = RepeatedTimer(5, testemacheck, testUSDbalance,testBTCbalance)
+    #rt = RepeatedTimer(60, emacheck)
 
 
 
@@ -247,8 +359,8 @@ getBalance()
 getRecentTrades()
 
 print("starting...")
-emacheck(9,21,50)
-#rt = RepeatedTimer(60, emacheck) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
+test()
+#rt = RepeatedTimer(60, test) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
 # try:
 #     sleep() # your long-running job goes here...
 # finally:
