@@ -8,6 +8,9 @@ import random
 from threading import Timer
 from time import sleep
 
+
+#Classes  :
+
 class RepeatedTimer(object):
     def __init__(self, interval, function):
         self._timer     = None
@@ -32,8 +35,9 @@ class RepeatedTimer(object):
         self.is_running = False
 
 
+#functions
 
-def emacheck():
+def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
     if exchange.has['fetchOHLCV']:
         #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
         #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
@@ -47,56 +51,54 @@ def emacheck():
         dfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/ohlcv.csv', header=True)
 
         plist = pd.Series(v[4] for v in ohlcvlist)
-        sma10 = plist.rolling(window = 10).mean()
-        ema10 = plist.ewm(span = 10).mean() #10 ewm
-        ema20 = plist.ewm(span = 20).mean() #20 ewm
-        ema50 = plist.ewm(span = 50).mean() #50 ewm
+        shortma = plist.rolling(window = shortterm).mean()
+        shortema = plist.ewm(span = shortterm).mean() #10 ewm
+        mediumema = plist.ewm(span = mediumterm).mean() #20 ewm
+        longema = plist.ewm(span = longterm).mean() #50 ewm
 
 
-        dfma = pd.concat([sma10,ema10,ema20,ema50], axis = 1)
-        dfma.columns = ['sma10', 'ema10', 'ema20', 'ema50']
+        dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
+        dfma.columns = ['Short-term MA (MA' + str(shortterm) + ')', 'Short-term EMA (EMA' + str(shortterm) + ')', 'Medium-term EMA (EMA' + str(mediumterm) + ')', 'Long-term EMA (EMA' + str(longterm) + ')']
         print(dfma)
         dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/1dayma.csv', header=True)
 
     recentma = dfma.iloc[dfma.shape[0]-1]
-    recentsma10 = recentma[0]
-    recentema10 = recentma[1]
-    recentema20 = recentma[2]
-    recentema50 = recentma[3]
+    recentshortema = recentma[1]
+    recentmediumema = recentma[2]
+    recentlongema = recentma[3]
     prevma = dfma.iloc[dfma.shape[0]-2]
-    prevsma10 = prevma[0]
-    prevema10 = prevma[1]
-    prevema20 = prevma[2]
-    prevema50 = prevma[3]
+    prevshortema = prevma[1]
+    prevmediumema = prevma[2]
+    prevlongema = prevma[3]
 
-    if(prevema10 > prevema50):
-        above50 = True
+    if(prevshortema > prevlongema):
+        abovelong = True
     else:
-        above50 = False
+        abovelong = False
 
-    if(prevema10 > prevema20):
-        above20 = True
+    if(prevshortema > prevmediumema):
+        abovemedium = True
     else:
-        above20 = False
+        abovemedium = False
 
     buysignal = False
     sellsignal = False
     
-    if(recentema10 > recentema50):
-        above50 = True
+    if(recentshortema > recentlongema):
+        abovelong = True
     else:
-        above50 = False
+        abovelong = False
 
-    if(above20 == False and above50 == True and recentema10 > recentema20):
-        above20 = True
+    if(abovemedium == False and abovelong == True and recentshortema > recentmediumema):
+        abovemedium = True
         buysignal = True
-    elif(above20 == True and above50 == False and recentema10 < recentema20):
-        above20 == False
+    elif(abovemedium == True and abovelong == False and recentshortema < recentmediumema):
+        abovemedium == False
         sellsignal = True
-    elif(recentema10 > recentema20):
-        above20 = True
-    elif(recentema10 < recentema20):
-        above20 = False
+    elif(recentshortema > recentmediumema):
+        abovemedium = True
+    elif(recentshortema < recentmediumema):
+        abovemedium = False
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55
@@ -108,14 +110,95 @@ def emacheck():
 
     return buysignal,sellsignal
 
+def getBalance(): 
+    rate = exchange.fetch_ticker('BTC/USDT').get("bid")
+    for items in dfbalance.items(): #print the coins that i own
+        if isinstance(items[1].get("total"), float):
+            if (items[1].get("total") > 0):
+                coinsowned.append(items[0])
+                coinsownedamount.append(items[1].get("total"))
+                if(items[0] == "BTC"):
+                    priceinbtc = 1
+                elif(items[0] == "SBTC" or items[0] == "BCX" or items[0] == "VTHO"):
+                    priceinbtc = 0
+                else:
+                    priceinbtc = (exchange.fetch_ticker(items[0] + "/BTC").get("close") + exchange.fetch_ticker(items[0] + "/BTC").get("open"))/2.0
+                coinsinbtc.append(items[1].get("total") * priceinbtc)
+                coinsinusd.append(items[1].get("total") * priceinbtc * rate)
+    scoinsowned = pd.Series(coinsownedamount, coinsowned, name = 'amount')
+
+
+    dfcoinsowned = pd.DataFrame({
+            'balance' : scoinsowned,
+            'in btc' : coinsinbtc,
+            'in usd' : coinsinusd
+        })
+    print(dfcoinsowned)
+    dfcoinsowned.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/coinsowned.csv', header=True)
+
+
+    balanceinusd = 0
+    for val in dfcoinsowned["in usd"]:
+        balanceinusd += val
+    print("Your total balance in USD : $" + str(balanceinusd))
+    print("//////////////////////////////////////")
+
+def getRecentTrades():
+    tradetime = []
+    tradesymbol = []
+    tradeamount = []
+    tradeside = []
+    print("Your recent trades")
+    if exchange.has['fetchMyTrades']:
+        for val in coinsowned:
+            if(val!= "BTC" and val!= "SBTC" and val != "VTHO" and val != "BCX"):
+                trades = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 864000000, limit = 10, params = {})
+                for trade in trades:
+                    tradetime.append(trade.get("datetime"))
+                    tradesymbol.append(trade.get("symbol"))
+                    tradeamount.append(trade.get("amount"))
+                    tradeside.append(trade.get("side"))          
+            #print("At " + trade.get("datetime") + " : " + trade.get("symbol") + " : " + str(trade.get("amount")) + " " + trade.get("side") + " at " + str(trade.get("price")))
+    dftrades = pd.DataFrame({
+            'tradetime': tradetime,
+            'tradeside': tradeside,
+            'tradesymbol': tradesymbol,
+            'tradeamount': tradeamount,
+        })
+    dftrades = dftrades.sort_values(by = ['tradetime'], ascending = False)
+
+
+    dftrades.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/trades.csv', header=True)
+    print(dftrades)
+
+    print("//////////////////////////////////////")
+
+    print("Your recent buys")
+    isbuy = dftrades['tradeside']=="buy"
+    dftradesbuy = dftrades[isbuy]
+    print(dftradesbuy)
+
+    print("Your recent sells")
+    issell = dftrades['tradeside']=="sell"
+    dftradessell = dftrades[issell]
+    print(dftradessell)
+
+    print("//////////////////////////////////////")
+
 
 def buy():
     print("BUY")
-    # exchange.createMarketBuyOrder("ETH/BTC", 0.01)
+    # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
 def sell():
     print("SELL")
-    # exchange.createMarketBuyOrder("ETH/BTC", 0.01)
+    # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
 
+
+
+
+
+
+#main.py
 
 exchange = ccxt.binance()
 markets = exchange.load_markets()
@@ -127,9 +210,16 @@ exchange.apiKey = ''
 exchange.secret = ''
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
-
 balance = exchange.fetch_balance()
 dfbalance = pd.Series(balance)
+
+coinsowned = []
+coinsownedamount = []
+coinsinbtc = []
+coinsinusd = []
+percentagechange = []
+
+
 #print(exchange.privateGetAccounts(params))
 #print(ccxt.exchanges)
 
@@ -151,91 +241,14 @@ if exchange.has['fetchClosedOrders']:
     print(len(all_orders))
 
 print("//////////////////////////////////////")
-
-coinsowned = []
-coinsownedamount = []
-coinsinbtc = []
-coinsinusd = []
-percentagechange = []
-rate = exchange.fetch_ticker('BTC/USDT').get("bid")
-for items in dfbalance.items(): #print the coins that i own
-    if isinstance(items[1].get("total"), float):
-        if (items[1].get("total") > 0):
-            coinsowned.append(items[0])
-            coinsownedamount.append(items[1].get("total"))
-            if(items[0] == "BTC"):
-                priceinbtc = 1
-            elif(items[0] == "SBTC" or items[0] == "BCX" or items[0] == "VTHO"):
-                priceinbtc = 0
-            else:
-                priceinbtc = (exchange.fetch_ticker(items[0] + "/BTC").get("close") + exchange.fetch_ticker(items[0] + "/BTC").get("open"))/2.0
-            coinsinbtc.append(items[1].get("total") * priceinbtc)
-            coinsinusd.append(items[1].get("total") * priceinbtc * rate)
-scoinsowned = pd.Series(coinsownedamount, coinsowned, name = 'amount')
-
-
-dfcoinsowned = pd.DataFrame({
-        'balance' : scoinsowned,
-        'in btc' : coinsinbtc,
-        'in usd' : coinsinusd
-    })
-print(dfcoinsowned)
-dfcoinsowned.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/coinsowned.csv', header=True)
-
-
-balanceinusd = 0
-for val in dfcoinsowned["in usd"]:
-    balanceinusd += val
-print("Your total balance in USD : $" + str(balanceinusd))
-
-
-print("//////////////////////////////////////")
-
+getBalance()
 
 #for fetching recent trade or trade orders
-print("Your recent trades")
-tradetime = []
-tradesymbol = []
-tradeamount = []
-tradeside = []
-if exchange.has['fetchMyTrades']:
-    for val in coinsowned:
-        if(val!= "BTC" and val!= "SBTC" and val != "VTHO" and val != "BCX"):
-            trades = exchange.fetch_my_trades (symbol = val + "/BTC", since = exchange.milliseconds () - 864000000, limit = 10, params = {})
-            for trade in trades:
-                tradetime.append(trade.get("datetime"))
-                tradesymbol.append(trade.get("symbol"))
-                tradeamount.append(trade.get("amount"))
-                tradeside.append(trade.get("side"))          
-        #print("At " + trade.get("datetime") + " : " + trade.get("symbol") + " : " + str(trade.get("amount")) + " " + trade.get("side") + " at " + str(trade.get("price")))
-dftrades = pd.DataFrame({
-        'tradetime': tradetime,
-        'tradeside': tradeside,
-        'tradesymbol': tradesymbol,
-        'tradeamount': tradeamount,
-    })
-dftrades = dftrades.sort_values(by = ['tradetime'], ascending = False)
-
-
-dftrades.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/trades.csv', header=True)
-print(dftrades)
-
-print("//////////////////////////////////////")
-
-print("Your recent buys")
-isbuy = dftrades['tradeside']=="buy"
-dftradesbuy = dftrades[isbuy]
-print(dftradesbuy)
-
-print("Your recent sells")
-issell = dftrades['tradeside']=="sell"
-dftradessell = dftrades[issell]
-print(dftradessell)
-
-print("//////////////////////////////////////")
+getRecentTrades()
 
 print("starting...")
-rt = RepeatedTimer(60, emacheck) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
+emacheck(9,21,50)
+#rt = RepeatedTimer(60, emacheck) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
 # try:
 #     sleep() # your long-running job goes here...
 # finally:
