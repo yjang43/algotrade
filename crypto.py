@@ -11,7 +11,7 @@ from time import sleep
 
 #Classes  :
 
-class RepeatedTimer(object):
+class RepeatedTimer(object): #Class for repeated checking
     def __init__(self, interval, function, *args, **kwargs):
         self._timer     = None
         self.interval   = interval
@@ -72,34 +72,16 @@ def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
     prevmediumema = prevma[2]
     prevlongema = prevma[3]
 
-    if(prevshortema > prevlongema):
-        abovelong = True
-    else:
-        abovelong = False
-
-    if(prevshortema > prevmediumema):
-        abovemedium = True
-    else:
-        abovemedium = False
-
     buysignal = False
     sellsignal = False
-    
-    if(recentshortema > recentlongema):
-        abovelong = True
-    else:
-        abovelong = False
 
-    if(abovemedium == False and abovelong == True and recentshortema > recentmediumema):
-        abovemedium = True
-        buysignal = True
-    elif(abovemedium == True and abovelong == False and recentshortema < recentmediumema):
-        abovemedium == False
+    if(prevshortema < prevlongema and prevshortema > prevmediumema and recentshortema < recentlongema and recentshortema < recentmediumema):
         sellsignal = True
-    elif(recentshortema > recentmediumema):
-        abovemedium = True
-    elif(recentshortema < recentmediumema):
-        abovemedium = False
+    elif(prevshortema > prevlongema and prevshortema < prevmediumema and recentshortema > recentlongema and recentshortema > recentmediumema):
+        buysignal = True
+    else:
+        buysignal = False
+        sellsignal = False 
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55
@@ -111,15 +93,22 @@ def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
 
     return buysignal,sellsignal
 
-def testemacheck(testUSDbalance,testBTCbalance):
+def testemacheck(dfsignal, testUSDbalance,testBTCbalance):
     shortterm = 10
     mediumterm = 20
     longterm = 50
+
     if exchange.has['fetchOHLCV']:
         #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
         #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
         #make a list of the past sma
-        ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+        ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1m')
+        # '1m': '1minute',
+        # '1h': '1hour',
+        # '1d': '1day',
+        # '1M': '1month',
+        # '1y': '1year',
+
         #ohlcvlist.reverse() #newest first
         #print((ohlcvlist))
 
@@ -136,66 +125,54 @@ def testemacheck(testUSDbalance,testBTCbalance):
 
         dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
         dfma.columns = ['Short-term MA (MA' + str(shortterm) + ')', 'Short-term EMA (EMA' + str(shortterm) + ')', 'Medium-term EMA (EMA' + str(mediumterm) + ')', 'Long-term EMA (EMA' + str(longterm) + ')']
-        #print(dfma)
+        print(dfma)
         dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/1dayma.csv', header=True)
 
-    recentma = dfma.iloc[dfma.shape[0]-1]
-    recentshortema = recentma[1]
-    recentmediumema = recentma[2]
-    recentlongema = recentma[3]
-    prevma = dfma.iloc[dfma.shape[0]-2]
-    prevshortema = prevma[1]
-    prevmediumema = prevma[2]
-    prevlongema = prevma[3]
-
-    if(prevshortema > prevlongema):
-        abovelong = True
-    else:
-        abovelong = False
-
-    if(prevshortema > prevmediumema):
-        abovemedium = True
-    else:
-        abovemedium = False
+        recentma = dfma.iloc[dfma.shape[0]-1]
+        recentshortema = recentma[1]
+        recentmediumema = recentma[2]
+        recentlongema = recentma[3]
+        prevma = dfma.iloc[dfma.shape[0]-2]
+        prevshortema = prevma[1]
+        prevmediumema = prevma[2]
+        prevlongema = prevma[3]
 
     buysignal = False
     sellsignal = False
-    
-    if(recentshortema > recentlongema):
-        abovelong = True
-    else:
-        abovelong = False
 
-    if(abovemedium == False and abovelong == True and recentshortema > recentmediumema):
-        abovemedium = True
-        buysignal = True
-    elif(abovemedium == True and abovelong == False and recentshortema < recentmediumema):
-        abovemedium == False
+    if(prevshortema < prevlongema and prevshortema > prevmediumema and recentshortema < recentlongema and recentshortema < recentmediumema):
         sellsignal = True
-    elif(recentshortema > recentmediumema):
-        abovemedium = True
-    elif(recentshortema < recentmediumema):
-        abovemedium = False
+    elif(prevshortema > prevlongema and prevshortema < prevmediumema and recentshortema > recentlongema and recentshortema > recentmediumema):
+        buysignal = True
+    else:
+        buysignal = False
+        sellsignal = False 
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55
     print("//////////////////////////////////////")
 
-    print(buysignal, sellsignal)
+
     print("Your test USD Balance : " + str(testUSDbalance))
     print("Your test BTC Balance : " + str(testBTCbalance))
-    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+    ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1m')
     dfohlcv = pd.DataFrame.from_records(ohlcvlist)
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
     totalb = testUSDbalance + (testBTCbalance*(dfohlcv.iloc[-1][4]))
     print("Your total balance : " + str(totalb))
+    change = (totalb - 1000)/1000.0 * 100
+    ss = pd.Series([buysignal, sellsignal, totalb, testUSDbalance,testBTCbalance, str(change) + "%"], index = ['buy', 'sell', 'total balance', 'usd balance', 'btc balance', 'change'])
+    print(ss)
+    dfsignal = dfsignal.append(ss, ignore_index = True)
+    print(dfsignal)
+    dfsignal.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/signal.csv', header=True)
 
     if(buysignal):
-        return(testbuy(testUSDbalance,testBTCbalance))
+        return(testbuy(dfsignal, testUSDbalance, testBTCbalance))
     elif(sellsignal):
-        return(testsell(testUSDbalance,testBTCbalance))
+        return(testsell(dfsignal, testUSDbalance, testBTCbalance))
     else:
-        return(testUSDbalance, testBTCbalance)
+        return(dfsignal, testUSDbalance, testBTCbalance)
 
 
 
@@ -275,38 +252,40 @@ def getRecentTrades():
     print("//////////////////////////////////////")
 
 
-def testbuy(testUSDbalance, testBTCbalance):
+def testbuy(dfsignal, testUSDbalance, testBTCbalance):
     print("BUY")
     ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
     dfohlcv = pd.DataFrame.from_records(ohlcvlist)
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
     testBTCbalance = testBTCbalance + ((testUSDbalance)/(dfohlcv.iloc[-1][4]))
     testUSDbalance = 0
-    return(testUSDbalance,testBTCbalance)
+    return(dfsignal, testUSDbalance,testBTCbalance)
 
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
-def testsell(testUSDbalance, testBTCbalance):
+def testsell(dfsignal, testUSDbalance, testBTCbalance):
     print("SELL")
     ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
     dfohlcv = pd.DataFrame.from_records(ohlcvlist)
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
     testUSDbalance = testUSDbalance + testBTCbalance*(dfohlcv.iloc[-1][4])
     testBTCbalance = 0
-    return(testUSDbalance,testBTCbalance)
+    return(dfsignal, testUSDbalance,testBTCbalance)
 
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
 
 
 def test():
-    testUSDbalance = 0
-    testBTCbalance = 1000
+    testUSDbalance = 1000
+    testBTCbalance = 0
+    dfsignal = pd.DataFrame(columns = ['buy', 'sell', 'total balance', 'usd balance', 'btc balance', 'change'])
+
     while True : 
-        lol = testemacheck(testUSDbalance,testBTCbalance)
-        testUSDbalance = lol[0]
-        testBTCbalance = lol[1]
-        time.sleep(5)
+        lol = testemacheck(dfsignal, testUSDbalance,testBTCbalance)
+        dfsignal = lol[0]
+        testUSDbalance = lol[1]
+        testBTCbalance = lol[2]
+        time.sleep(60)
     #rt = RepeatedTimer(5, testemacheck, testUSDbalance,testBTCbalance)
-    #rt = RepeatedTimer(60, emacheck)
 
 
 
@@ -330,7 +309,6 @@ coinsownedamount = []
 coinsinbtc = []
 coinsinusd = []
 percentagechange = []
-
 
 #print(exchange.privateGetAccounts(params))
 #print(ccxt.exchanges)
