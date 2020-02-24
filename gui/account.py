@@ -1,15 +1,7 @@
 from gui.pages import *
-
+import pandas as pd
 
 class AccountPage(PageWidget):
-    class CoinGraph(PlotWidget):
-        def __init__(self, data_input_x, data_input_y, title):
-            super().__init__()
-            self.setFixedSize(250, 140)
-            self.plot(data_input_x, data_input_y)
-            self.showAxis('top', False)
-            self.setBackground('w')
-            self.setTitle(title)
 
     def __init__(self):
         super().__init__()
@@ -74,7 +66,7 @@ class AccountPage(PageWidget):
         history_label.setFixedSize(250, 30)
         history = QListWidget()
         history.setFixedSize(250, 400)
-        history.addItems(['bought million dollar amount of btc', 'b'])
+        history.addItems(['log1', 'log2'])
         history.setSizePolicy(5, 5)
         page.layout().addWidget(history_label)
         page.layout().addWidget(history)
@@ -84,10 +76,39 @@ class AccountPage(PageWidget):
         page = QWidget()
         page.setFixedSize(250, 450)
         page.setLayout(QVBoxLayout())
-        bitcoin_graph = self.CoinGraph([1,2,3, 4],[1,2,3, 3], 'btc')
-        coin_graph = self.CoinGraph([1, 3, 2], [1,2,3], 'coin')
-
+        df = pd.read_csv("csv/ohlcv.csv")
+        bitcoin_graph = CoinGraph(title='btc', labels={'left': 'price', 'bottom': 'time'})
+        bitcoin_graph.getPlotItem().addItem(GraphData(df))
+        coin_graph = CoinGraph(title='other coin', labels={'left': 'price', 'bottom': 'time'})
+        coin_graph.getPlotItem().addItem(GraphData(df))
+        pdi = PlotDataItem()
+        pdi.setData(df[['Time', 'Volume']].to_numpy())
+        coin_graph.getPlotItem().addItem(pdi)
+        tmp = df['Time']
+        coin_graph.getPlotItem().setXRange(tmp.loc[400], tmp.loc[499])
         page.layout().addWidget(bitcoin_graph)
         page.layout().addWidget(coin_graph)
         return page
+
+
+class GraphData(PlotDataItem):
+    def __init__(self, df: pd.DataFrame, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        price_data = self.open_price(df)
+        self.setData(price_data)
+
+    def open_price(self, df: pd.DataFrame):
+        # time and open price
+        price:pd.DataFrame = df[['Time', 'Open']]
+        price = price.to_numpy()
+        return price
+
+
+class CoinGraph(PlotWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFixedSize(250, 130)
+        self.showAxis('top', False)
+        self.setBackground('w')
+
 

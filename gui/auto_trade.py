@@ -1,6 +1,5 @@
 from gui.pages import *
 
-
 class AutoTradePage(PageWidget):
     def __init__(self):
         self.drop_down_menu = None
@@ -37,7 +36,7 @@ class AutoTradePage(PageWidget):
 
 
         # trade button
-        trade_btn = QPushButton("trade")
+        trade_btn = QPushButton("Invest")
         trade_btn.setFixedSize(150, 30)
         trade_btn.clicked.connect(lambda x: print(ema_option.get_parameters()))
 
