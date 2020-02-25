@@ -63,14 +63,12 @@ class AccountPage(PageWidget):
         page = QWidget()
         page.setFixedSize(250, 450)
         page.setLayout(QVBoxLayout())
-        history_label = QLabel("Log")
-        history_label.setFixedSize(250, 30)
-        history = QListWidget()
-        history.setFixedSize(250, 400)
-        history.addItems(['log1', 'log2'])
-        history.setSizePolicy(5, 5)
-        page.layout().addWidget(history_label)
-        page.layout().addWidget(history)
+        notification_label = QLabel("Notification")
+        notification_label.setFixedSize(250, 30)
+        notification_file_path = "gui/notification.txt"
+        notification = NotificationLog(notification_file_path)
+        page.layout().addWidget(notification_label)
+        page.layout().addWidget(notification)
         return page
 
     def set_panel3(self):
@@ -104,7 +102,22 @@ class GraphData(PlotDataItem):
         price = price.to_numpy()
         return price
 
+class NotificationLog(QListWidget):
+    def __init__(self, file_path):
+        super().__init__()
+        self.setFixedSize(250, 400)
+        self.setSizePolicy(5, 5)
+        self.load_notification(file_path)
+    
+    def load_notification(self, file_path):
+        notification_list = list()
+        with open(file_path) as f:
+            for line in f:
+                notification_list.insert(0, line.rstrip())
+        self.addItems(notification_list)
 
+    
+    
 class CoinGraph(PlotWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

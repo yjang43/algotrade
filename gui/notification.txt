@@ -1,0 +1,8 @@
+25FEB20: notification section uploaded
+30FEB20: today does not exist
+01MAR20: EMA/SMA algorithm added
+
+##################################
+the order of old to new
+add notification in this file in
+Do not go over 30 character per line
