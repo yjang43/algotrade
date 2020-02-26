@@ -7,6 +7,11 @@ import pandas as pd
 import random
 from threading import Timer
 from time import sleep
+from matplotlib import pyplot
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error
+
+
 
 
 #Classes  :
@@ -38,20 +43,43 @@ class RepeatedTimer(object): #Class for repeated checking
 
 #functions
 
+def parser(x):
+    return datetime.strptime('190'+x, '%Y-%m')
+
 def emacheck(shortterm = 10, mediumterm = 20, longterm = 50):
     if exchange.has['fetchOHLCV']:
         #time.sleep (exchange.rateLimit/500) # time.sleep wants seconds
         #print(exchange.fetch_ohlcv("BTC/KRW", '1d')) #gives the last 200 candlesticks
         #make a list of the past sma
-        ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
-        #ohlcvlist.reverse() #newest first
-        #print((ohlcvlist))
+        mohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1m')
+        hohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1h')
+        dohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
+        Mohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1M')
 
-        dfohlcv = pd.DataFrame.from_records(ohlcvlist)
-        dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
-        dfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/ohlcv.csv', header=True)
+        # '1m': '1minute',
+        # '1h': '1hour',
+        # '1d': '1day',
+        # '1M': '1month',
+        # '1y': '1year',
 
-        plist = pd.Series(v[4] for v in ohlcvlist)
+        mdfohlcv = pd.DataFrame.from_records(mohlcvlist)
+        hdfohlcv = pd.DataFrame.from_records(hohlcvlist)
+        ddfohlcv = pd.DataFrame.from_records(dohlcvlist)
+        Mdfohlcv = pd.DataFrame.from_records(Mohlcvlist)
+        mdfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        hdfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        ddfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        Mdfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
+        mdfohlcv['Time'] = pd.to_datetime(mdfohlcv['Time'], unit='ms')
+        hdfohlcv['Time'] = pd.to_datetime(hdfohlcv['Time'], unit='ms')
+        ddfohlcv['Time'] = pd.to_datetime(ddfohlcv['Time'], unit='ms')
+        Mdfohlcv['Time'] = pd.to_datetime(Mdfohlcv['Time'], unit='ms')
+        mdfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/minuteohlcv.csv', header=True)
+        hdfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/hourohlcv.csv', header=True)
+        ddfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/dayohlcv.csv', header=True)
+        Mdfohlcv.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/monthohlcv.csv', header=True)
+
+        plist = pd.Series(v[4] for v in dohlcvlist)
         shortma = plist.rolling(window = shortterm).mean()
         shortema = plist.ewm(span = shortterm).mean() #10 ewm
         mediumema = plist.ewm(span = mediumterm).mean() #20 ewm
@@ -165,7 +193,7 @@ def testemacheck(dfsignal, testUSDbalance,testBTCbalance):
     print(ss)
     dfsignal = dfsignal.append(ss, ignore_index = True)
     print(dfsignal)
-    dfsignal.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/signal.csv', header=True)
+    dfsignal.to_csv (r'/Users/jae/Documents/Programming/algotrade/csv/0.5signal.csv', header=True)
 
     if(buysignal):
         return(testbuy(dfsignal, testUSDbalance, testBTCbalance))
@@ -257,8 +285,8 @@ def testbuy(dfsignal, testUSDbalance, testBTCbalance):
     ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
     dfohlcv = pd.DataFrame.from_records(ohlcvlist)
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
-    testBTCbalance = testBTCbalance + ((testUSDbalance)/(dfohlcv.iloc[-1][4]))
-    testUSDbalance = 0
+    testBTCbalance = testBTCbalance + ((0.5 * testUSDbalance)/(dfohlcv.iloc[-1][4]))
+    testUSDbalance = 0.5 * testUSDbalance
     return(dfsignal, testUSDbalance,testBTCbalance)
 
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
@@ -267,8 +295,8 @@ def testsell(dfsignal, testUSDbalance, testBTCbalance):
     ohlcvlist = exchange.fetch_ohlcv("BTC/USDT", '1d')
     dfohlcv = pd.DataFrame.from_records(ohlcvlist)
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
-    testUSDbalance = testUSDbalance + testBTCbalance*(dfohlcv.iloc[-1][4])
-    testBTCbalance = 0
+    testUSDbalance = testUSDbalance + 0.5 * testBTCbalance*(dfohlcv.iloc[-1][4])
+    testBTCbalance = 0.5 * testBTCbalance
     return(dfsignal, testUSDbalance,testBTCbalance)
 
     # exchange.createMarketBuyOrder("ETH/BTC", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
@@ -337,7 +365,46 @@ getBalance()
 getRecentTrades()
 
 print("starting...")
-test()
+emacheck()
+mydf = pd.read_csv('/Users/jae/Documents/Programming/algotrade/csv/dayohlcv.csv')
+series = pd.concat([mydf['Time'], mydf['Close']], axis=1)
+series = series.set_index('Time')
+X = series.values
+print(X)
+size = int(len(X) * 0.1)
+train, test = X[0:size], X[size:len(X)]
+history = [x for x in train]
+predictions = list()
+for t in range(len(test)):
+    model = ARIMA(history, order=(5,1,0))
+    model_fit = model.fit(disp=0)
+    output = model_fit.forecast()
+    yhat = output[0]
+    predictions.append(yhat)
+    obs = test[t]
+    history.append(obs)
+    print('predicted=%f, expected=%f' % (yhat, obs))
+
+error = mean_squared_error(test, predictions)
+print('Test MSE: %.3f' % error)
+# plot
+pyplot.plot(test)
+pyplot.plot(predictions, color='yellow')
+pyplot.show()
+# #pd.plotting.autocorrelation_plot(series)
+# #pyplot.show()
+# model = ARIMA(series, order = (5,0,0))
+# model_fit = model.fit(disp = 0)
+# print(model_fit.summary())
+# # plot residual errors
+# residuals = pd.DataFrame(model_fit.resid)
+# residuals.plot()
+# pyplot.show()
+# residuals.plot(kind='kde')
+# pyplot.show()
+# print(residuals.describe())
+
+
 #rt = RepeatedTimer(60, test) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE
 # try:
 #     sleep() # your long-running job goes here...
