@@ -4,14 +4,52 @@ class AutoTradePage(PageWidget):
     def __init__(self):
         self.drop_down_menu = None
         self.session = None
+        self.tb: QTableWidget = None
         super().__init__()
-        self.layout().addWidget(self.set_panel1())
-        self.layout().addWidget(self.set_panel2())
-        self.layout().addWidget(self.set_panel3())
+        self.panel1 = self.set_panel1()
+        self.panel2 = self.set_panel2()
+        self.panel3 = self.set_panel3()
+        self.layout().addWidget(self.panel1)
+        self.layout().addWidget(self.panel2)
+        self.layout().addWidget(self.panel3)
+
+        # 2.25 add QTimer to update table
+        self.timer_status = QTimer()
+        self.timer_status.timeout.connect(self.update_all_views)
+        self.timer_status.setInterval(10000)
+        self.timer_status.start()
+
+    def update_all_views(self):
+        self.update_trade_history()
+
+    def update_trade_history(self):
+        df = pd.read_csv('gui/trade_history.csv')
+
+        df.to_csv('gui/trade_history.csv', index=False)
+        # self.tb.setItem(0, 0, QTableWidgetItem('test'))
+        self.panel2.hide()
+        # self.layout().removeWidget(self.panel1)
+        print(self.layout().count)
+        self.panel2 = self.set_panel2()
+        self.layout().insertWidget(1, self.panel2)
 
     def set_panel1(self):
         def display_option(menu_index, stack_widget:QStackedWidget):
             stack_widget.setCurrentIndex(menu_index)
+
+        def invest_clicked():
+            df: pd.DataFrame = pd.read_csv('gui/trade_history.csv')
+            # df_to_add = pd.DataFrame(columns=df.columns)
+            # df_to_add = df_to_add.append({'Date': '-', 'Session#': '-', 'Buy/Sell': '-', 'Price': '-'})
+            d = {'Date': ['date'], 'Session#': ['session'], 'Buy/Sell': ['buy'], 'Price': ['price']}
+            df_to_add = pd.DataFrame(d)
+            # print(df_to_add)
+            df = df_to_add.append(df, ignore_index=False)
+            df.to_csv('gui/trade_history.csv', index=False)
+            # self.panel2 = self.set_panel2()
+            print(ema_option.get_parameters())
+            # need to implement QTimer!!!!!!
+
 
         panel = QWidget()
         panel.setFixedSize(200, 400)
@@ -38,7 +76,7 @@ class AutoTradePage(PageWidget):
         # trade button
         trade_btn = QPushButton("Invest")
         trade_btn.setFixedSize(150, 30)
-        trade_btn.clicked.connect(lambda x: print(ema_option.get_parameters()))
+        trade_btn.clicked.connect(lambda x: invest_clicked())
 
         panel.layout().addWidget(algo_menu)
         panel.layout().addWidget(input_section)
@@ -55,12 +93,12 @@ class AutoTradePage(PageWidget):
         lb = QLabel("trade history")
 
         # trade history table
-        tb = QTableWidget(20, 4)
-        tb.setHorizontalHeaderLabels(['date', 'session#', 'buy/sell', 'price'])
+        df = pd.read_csv('gui/trade_history.csv')
+        self.tb = df_to_table(df)
 
         # add components
         panel.layout().addWidget(lb)
-        panel.layout().addWidget(tb)
+        panel.layout().addWidget(self.tb)
 
         return panel
 
@@ -107,3 +145,11 @@ class EmaOption(OptionSection):
         self.layout().addWidget(ema_day_value, 0, 1)
         self.layout().addWidget(risk_value, 1, 1)
 
+
+
+def cur_datetime():
+    cur_date = datetime.now().strftime("%d/%m/%y")
+    cur_time = datetime.now().strftime("%H:%M:%S")
+    ret = (str(cur_date) + "-" + str(cur_time))
+    print(ret)
+    return ret

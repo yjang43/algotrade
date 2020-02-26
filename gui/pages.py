@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from pyqtgraph import *
 import pandas as pd
 from typing import List, Dict
+from datetime import datetime
 
 class PageWidget(QWidget):
     def __init__(self):
@@ -20,7 +22,6 @@ def df_to_table(df: pd.DataFrame):
     if df.shape[0] >= 10:
         table_row = 10
     table_size = (table_row, table_col)
-    print(table_size)
     table = QTableWidget(table_size[0], table_size[1])
     table.setFont(QFont("Times", 12))
     table.setHorizontalHeaderLabels(column_names)
