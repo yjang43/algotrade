@@ -5,6 +5,7 @@ from pyqtgraph import *
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
+from gui.tmp import *
 
 class PageWidget(QWidget):
     def __init__(self):
