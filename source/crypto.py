@@ -307,14 +307,14 @@ if exchange.has['fetchClosedOrders']:
             all_orders += orders
         else:
             break
-    print("Order Length : ")
-    print(len(all_orders))
+    # print("Order Length : ")
+    # print(len(all_orders))
 
 print("//////////////////////////////////////")
-getBalance()
+#getBalance()
 
 #for fetching recent trade or trade orders
-getRecentTrades()
+#getRecentTrades()
 
 print("starting...")
 ohlcvsave()
