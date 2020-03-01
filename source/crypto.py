@@ -277,8 +277,8 @@ symbols = exchange.symbols
 currencies = exchange.currencies
 
 #authentication and login
-exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
-exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
+exchange.apiKey = ''
+exchange.secret = ''
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
 balance = exchange.fetch_balance()
