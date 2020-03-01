@@ -84,7 +84,7 @@ class AccountPage(PageWidget):
         pdi.setData(df[['Time', 'Volume']].to_numpy())
         coin_graph.getPlotItem().addItem(pdi)
         tmp = df['Time']
-        coin_graph.getPlotItem().setXRange(tmp.loc[400], tmp.loc[499])
+        coin_graph.getPlotItem().setXRange(tmp.loc[1], tmp.loc[30])
         page.layout().addWidget(bitcoin_graph)
         page.layout().addWidget(coin_graph)
         return page

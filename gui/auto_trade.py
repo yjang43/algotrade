@@ -10,6 +10,7 @@ class AutoTradePage(PageWidget):
         self.drop_down_menu = None
         self.session = None
         self.tb: QTableWidget = None
+        self.current_algorithm = thread_control.process
 
         # panel setting
         self.panel1 = self.set_panel1()
@@ -19,11 +20,14 @@ class AutoTradePage(PageWidget):
         self.layout().addWidget(self.panel2)
         self.layout().addWidget(self.panel3)
 
-        # 2.25 add QTimer to update table
+        # add QTimer to update table
         self.timer_status = QTimer()
         self.timer_status.timeout.connect(self.update_all_views)
         self.timer_status.setInterval(10000)
         self.timer_status.start()
+
+        # thread manager
+        self.thread_manager = thread_control.ThreadManager()
 
     def update_all_views(self):
         """
@@ -68,25 +72,27 @@ class AutoTradePage(PageWidget):
             :return: calls functions to update status
             """
             # add session addition history to trade history
-            df: pd.DataFrame = pd.read_csv('gui/trade_history.csv')
-            d = {'Date': [cur_datetime()], 'Session#': ['session'], 'Buy/Sell': [''], 'Price': ['']}    # session data
-            df_to_add = pd.DataFrame(d)
-            df = df_to_add.append(df, ignore_index=False)
-            df.to_csv('gui/trade_history.csv', index=False)
+            # df: pd.DataFrame = pd.read_csv('gui/trade_history.csv')
+            # d = {'Date': [cur_datetime()], 'Session#': ['session'], 'Buy/Sell': [''], 'Price': ['']}    # session data
+            # df_to_add = pd.DataFrame(d)
+            # df = df_to_add.append(df, ignore_index=False)
+            # df.to_csv('gui/trade_history.csv', index=False)
 
             # update trade_history table to show user session is created
-            self.panel2.hide()
-            self.panel2 = self.set_panel2()
-            self.layout().insertWidget(1, self.panel2)
+            # self.panel2.hide()
+            # self.panel2 = self.set_panel2()
+            # self.layout().insertWidget(1, self.panel2)
 
             # receive input from user input
             # it's just printing for now
-            print(ema_option.get_parameters())
+            parameter = ema_option.get_parameters()
 
             # algorithm runs in the back
-            # I need to use self... I don't know why
-            self.algorithm = AlgoFunc(count)
-            self.algorithm.run_algo()
+            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm, parameter)
+            self.thread_manager.start_process(algorithm_process)
+            # self.algorithm = AlgoFunc(count)
+            # self.algorithm.run_algo()
+
 
         # set panel general attribute
         panel = QWidget()
