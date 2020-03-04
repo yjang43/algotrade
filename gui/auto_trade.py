@@ -1,5 +1,6 @@
 #import
 from gui.pages import *
+from gui.algorithm_wrapper import run_algorithm, emaalgorithm
 
 
 class AutoTradePage(PageWidget):
@@ -10,7 +11,10 @@ class AutoTradePage(PageWidget):
         self.drop_down_menu = None
         self.session = None
         self.tb: QTableWidget = None
-        self.current_algorithm = thread_control.process
+        self.algo_menu = None
+        self.current_algorithm = None
+        self.session_num_clicked = -1
+        self.session_df_row = -1
 
         # panel setting
         self.panel1 = self.set_panel1()
@@ -51,6 +55,16 @@ class AutoTradePage(PageWidget):
         self.panel2 = self.set_panel2()
         self.layout().insertWidget(1, self.panel2)
 
+    def update_session(self):
+        # upload DataFrame from the file
+        df = pd.read_csv('gui/sessions.csv')
+
+        # refresh panel2
+        self.panel3.hide()
+        self.panel3 = self.set_panel3()
+        self.layout().insertWidget(2, self.panel3)
+
+
     def set_panel1(self):
         """
         sets widgets in panel1
@@ -64,6 +78,7 @@ class AutoTradePage(PageWidget):
             :return: sets index of input section as menu_index
             """
             stack_widget.setCurrentIndex(menu_index)
+            print(self.algo_menu.currentText())
 
         def invest_clicked():
             """
@@ -71,27 +86,29 @@ class AutoTradePage(PageWidget):
             the background, add session addition to trade history, and add session
             :return: calls functions to update status
             """
-            # add session addition history to trade history
-            # df: pd.DataFrame = pd.read_csv('gui/trade_history.csv')
-            # d = {'Date': [cur_datetime()], 'Session#': ['session'], 'Buy/Sell': [''], 'Price': ['']}    # session data
-            # df_to_add = pd.DataFrame(d)
-            # df = df_to_add.append(df, ignore_index=False)
-            # df.to_csv('gui/trade_history.csv', index=False)
-
-            # update trade_history table to show user session is created
-            # self.panel2.hide()
-            # self.panel2 = self.set_panel2()
-            # self.layout().insertWidget(1, self.panel2)
-
             # receive input from user input
             # it's just printing for now
             parameter = ema_option.get_parameters()
+            print(parameter)
+            # make proper algorithm function
+            # self.current_algorithm = run_algorithm(self.algo_menu.currentText(), parameters=parameter,
+            #                                        process_id=thread_control.BackgroundProcess.process_id_count + 1)
+            self.current_algorithm = emaalgorithm
 
             # algorithm runs in the back
-            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm, parameter)
+            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm)
             self.thread_manager.start_process(algorithm_process)
             # self.algorithm = AlgoFunc(count)
             # self.algorithm.run_algo()
+
+            # add session addition history to sessions
+            df: pd.DataFrame = pd.read_csv('gui/sessions.csv')
+            d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.process_id],
+                 'algorithm': ["algorithm"], 'profit': ['']}    # session data
+            df_to_add = pd.DataFrame(d)
+            df = df_to_add.append(df, ignore_index=False)
+            df.to_csv('gui/sessions.csv', index=False)
+            self.update_session()
 
 
         # set panel general attribute
@@ -101,11 +118,11 @@ class AutoTradePage(PageWidget):
         input_section = QStackedWidget()
 
         # drop down menu for algorithm to use
-        algo_menu = QComboBox()
-        algo_menu.addItem('ema/sma')
-        algo_menu.addItem('granger causality')
-        algo_menu.addItem('other algorithm')
-        algo_menu.currentIndexChanged.connect(lambda: display_option(algo_menu.currentIndex(), input_section))  # signal
+        self.algo_menu = QComboBox()
+        self.algo_menu.addItem('ema/sma')
+        self.algo_menu.addItem('granger causality')
+        self.algo_menu.addItem('other algorithm')
+        self.algo_menu.currentIndexChanged.connect(lambda: display_option(self.algo_menu.currentIndex(), input_section))  # signal
 
         # stack widgets to show unique input page for each algorithm
         input_section.setFixedSize(200, 200)
@@ -122,7 +139,7 @@ class AutoTradePage(PageWidget):
         trade_btn.clicked.connect(invest_clicked)
 
         # add components
-        panel.layout().addWidget(algo_menu)
+        panel.layout().addWidget(self.algo_menu)
         panel.layout().addWidget(input_section)
         panel.layout().addWidget(trade_btn)
 
@@ -152,9 +169,49 @@ class AutoTradePage(PageWidget):
         panel.setFixedSize(200, 400)
         panel.setLayout(QVBoxLayout())
         session_lb = QLabel("Sessions")
+        # date, session #. algorithm, benefit
+        session_df = pd.read_csv("gui/sessions.csv")
+        if session_df.shape[0] > 5:
+            raise ValueError("there cannot be more than five sessions")
+        session_table = df_to_table(session_df)
+        session_table.setRowCount(5)
+
+        def set_session_clicked(row, col):
+            print(str(row) + str(col))
+            item = session_table.item(row, 1)
+            if item is not None:
+                self.session_num_clicked = int(session_table.item(row, 1).text())
+                self.session_df_row = row
+            print(self.session_num_clicked)
+
+        def kill_session_clicked():
+            if self.session_df_row == -1:
+                print("invalid row clicked")
+                return
+            df = pd.read_csv("gui/sessions.csv")
+            df = session_df.drop(self.session_df_row, axis='index')
+            df = df.reset_index(drop=True)
+            df.to_csv("gui/sessions.csv", index=False)
+            self.thread_manager.kill_process(self.session_num_clicked)
+            self.session_df_row = -1
+            self.session_num_clicked = -1
+            self.update_session()
+
+        session_table.cellClicked.connect(set_session_clicked)
+
+        session_terminate_button = QPushButton("terminate")
+        session_terminate_button.clicked.connect(kill_session_clicked)
+
+        status = QLabel("status")
+        status.setFixedSize(200, 200)
 
         panel.layout().addWidget(session_lb)
+        panel.layout().addWidget(session_table)
+        panel.layout().addWidget(session_terminate_button)
+        panel.layout().addWidget(status)
         return panel
+
+
 
 
 class OptionSection(QWidget):
@@ -188,7 +245,7 @@ class EmaOption(OptionSection):
     def __init__(self):
         super().__init__()
         # ema period
-        ema_day_lb = QLabel("ema day")
+        ema_day_lb = QLabel("investment")
         ema_day_value = QTextEdit()
         ema_day_value.setFixedHeight(30)
         # risk high mid low
@@ -196,21 +253,28 @@ class EmaOption(OptionSection):
         risk_value = QTextEdit()
         risk_value.setFixedHeight(30)
 
+        # input
+        investment_lb = QLabel("investment")
+        investment_val = QTextEdit()
+        period_lb = QLabel("period")
+        period_val = QTextEdit()
+        short_term_lb = QLabel("short term")
+        short_term_val = QTextEdit()
+        medium_term_lb = QLabel("medium term")
+        medium_term_val = QTextEdit()
+        long_term_lb = QLabel("long term")
+        long_term_val = QTextEdit()
+
         # layout
-        self.layout().addWidget(ema_day_lb, 0, 0)
-        self.layout().addWidget(risk_lb, 1, 0)
-        self.layout().addWidget(ema_day_value, 0, 1)
-        self.layout().addWidget(risk_value, 1, 1)
+        self.layout().addWidget(investment_lb, 0, 0)
+        self.layout().addWidget(investment_val, 0, 1)
+        self.layout().addWidget(period_lb, 1, 0)
+        self.layout().addWidget(period_val, 1, 1)
+        self.layout().addWidget(short_term_lb, 2, 0)
+        self.layout().addWidget(short_term_val, 2, 1)
+        self.layout().addWidget(medium_term_lb, 3, 0)
+        self.layout().addWidget(medium_term_val, 3, 1)
+        self.layout().addWidget(long_term_lb, 4, 0)
+        self.layout().addWidget(long_term_val, 4, 1)
 
 
-def cur_datetime():
-    """
-    return string of current date time
-    this function is general so need to be in different file
-    :return: string of current date time
-    """
-    cur_date = datetime.now().strftime("%d/%m/%y")
-    cur_time = datetime.now().strftime("%H:%M:%S")
-    ret = (str(cur_date) + "-" + str(cur_time))
-    print(ret)
-    return ret
