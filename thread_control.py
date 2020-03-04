@@ -2,6 +2,7 @@ from PyQt5.QtCore import *
 from typing import List, Dict
 import time
 import random
+from datetime import datetime
 import pandas as pd
 
 
@@ -53,8 +54,13 @@ class ThreadManager(QObject):
         return self.threads.get(process_number)
 
     def kill_process(self, process_number):
+        print(self.threads)
+        print(process_number)
+        if not self.threads.__contains__(process_number):
+            return
         process = self.threads.pop(process_number)
         process.terminate()
+        print("process terminated")
         process.wait()
 
 
@@ -69,9 +75,22 @@ class ThreadManager(QObject):
 #         process[1].wait()
 #
 
+def cur_datetime():
+    """
+    return string of current date time
+    this function is general so need to be in different file
+    :return: string of current date time
+    """
+    cur_date = datetime.now().strftime("%d/%m/%y")
+    cur_time = datetime.now().strftime("%H:%M:%S")
+    ret = (str(cur_date) + "-" + str(cur_time))
+    print(ret)
+    return ret
 def process(parameters: List, trade_info: pyqtSignal, process_id):
-    for n in range(5):
+    for n in range(60):
+        if n % 10 == 0:
+            cur_time = cur_datetime()
+            trade_info.emit({'date': cur_time, 'session_num': str(process_id), 'buy_sell': 'buy', 'amount': '1$'})
         time.sleep(1)
         print(n)
-    trade_info.emit({'Date': 'today', 'Session#': str(process_id), 'Buy/Sell': 'buy', 'Price': '1$'})
 
