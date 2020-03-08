@@ -96,7 +96,7 @@ class AutoTradePage(PageWidget):
             self.current_algorithm = emaalgorithm
 
             # algorithm runs in the back
-            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm)
+            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm, parameter)
             self.thread_manager.start_process(algorithm_process)
             # self.algorithm = AlgoFunc(count)
             # self.algorithm.run_algo()
@@ -226,14 +226,18 @@ class OptionSection(QWidget):
     def get_parameters(self):
         """
         get user inputs of the algorithm
-        :return: parameters in list
+        :return: parameters that converted from str to int in list
         """
         parameters = list()
         children = ([child for child in self.children()
                      if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
         for child in children:
             if type(child) == QTextEdit:
-                param = child.toPlainText()
+                param: str = child.toPlainText()
+                if param.isdigit():
+                    param = int(param)
+                else:
+                    param = -1  # sentinel value
                 parameters.append(param)
         return parameters
 

@@ -1,7 +1,6 @@
 from PyQt5.QtCore import *
 from typing import List, Dict
 import time
-import random
 from datetime import datetime
 import pandas as pd
 
@@ -64,17 +63,6 @@ class ThreadManager(QObject):
         process.wait()
 
 
-# class MainWindow(QMainWindow):
-#     def run_process(self):
-#         background_process = BackgroundProcess(self.function, self.parameters)
-#         self.thread_manager.start_process(background_process)
-#
-#     def kill_process(self):
-#         process = self.thread_manager.threads.popitem()
-#         process[1].terminate()
-#         process[1].wait()
-#
-
 def cur_datetime():
     """
     return string of current date time
@@ -86,6 +74,8 @@ def cur_datetime():
     ret = (str(cur_date) + "-" + str(cur_time))
     print(ret)
     return ret
+
+
 def process(parameters: List, trade_info: pyqtSignal, process_id):
     for n in range(60):
         if n % 10 == 0:
