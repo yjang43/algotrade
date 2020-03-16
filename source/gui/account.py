@@ -1,5 +1,6 @@
 from gui.pages import *
 import pandas as pd
+from CandlestickGraph import CandlestickGraph
 
 class AccountPage(PageWidget):
 
@@ -76,8 +77,9 @@ class AccountPage(PageWidget):
         page.setFixedSize(250, 450)
         page.setLayout(QVBoxLayout())
         df = pd.read_csv("csv/ohlcv.csv")
-        bitcoin_graph = CoinGraph(title='btc', labels={'left': 'price', 'bottom': 'time'})
-        bitcoin_graph.getPlotItem().addItem(GraphData(df))
+        # bitcoin_graph = CoinGraph(title='btc', labels={'left': 'price', 'bottom': 'time'})
+        # bitcoin_graph.getPlotItem().addItem(GraphData(df))
+        bitcoin_graph = CandlestickGraph(df)
         coin_graph = CoinGraph(title='other coin', labels={'left': 'price', 'bottom': 'time'})
         coin_graph.getPlotItem().addItem(GraphData(df))
         pdi = PlotDataItem()
