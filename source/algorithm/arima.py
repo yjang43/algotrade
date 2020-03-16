@@ -15,7 +15,7 @@ from algorithm import ema
 exchange = ccxt.binance()
 
 def ARIMAalgorithm():
-    flags = {correct : 0, wrong : 0}
+    #flags = {correct : 0, wrong : 0}
     #setting training and testing data
     mydf = pd.read_csv('/Users/jae/Documents/Programming/algotrade/source/csv/dayohlcv.csv')
     mydf = mydf[:]
