@@ -6,9 +6,13 @@ from pyqtgraph import *
 import sys
 import time
 
+CANDLESTICK_GAP = 40
+CANDLESTICK_WIDTH = 10
+
 """
 make graph, right top will show status in which generates open close high low volume stuff
 """
+
 
 class CandlestickGraph(PlotWidget):
     def __init__(self, data, *args, **kwargs):
@@ -17,7 +21,7 @@ class CandlestickGraph(PlotWidget):
         :param data: DataFrame with ['Time', 'Open', 'Close', 'High', 'Low']
         """
         super().__init__(axisItems={'bottom': StringAxis(orientation='bottom')}, *args, **kwargs)
-        self.setFixedSize(250, 130)
+        self.setFixedSize(500, 250)
         self.setBackground('w')
         self.data = data[['Time', 'Open', 'Close', 'High', 'Low']]
         self.candlestick_width = 10
@@ -35,6 +39,7 @@ class CandlestickGraph(PlotWidget):
         x_axis_data = {i: i for i in range(20)}
         x_axis = self.getAxis('bottom')
         x_axis.setTicks(x_axis_data)
+
 
 class StringAxis(AxisItem):
     def __init__(self, *args, **kwargs):
@@ -115,9 +120,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(graph)
         self.show()
 
-# app = QApplication(sys.argv)
-# main_window = MainWindow()
-# app.exec_()
+app = QApplication(sys.argv)
+main_window = MainWindow()
+app.exec_()
 
 
 # https://github.com/pyqtgraph/pyqtgraph/blob/develop/examples/customGraphicsItem.py
