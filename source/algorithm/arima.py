@@ -55,7 +55,7 @@ def ARIMAalgorithm():
             'Time' : test.index,
             'Close': forecast
             })
-        dfforecast1 = dfforecast1.set_index('Time')
+        dfforecast1 = dfforcast1.set_index('Time')
         dfforecast = dfforecast.append(dfforecast1)
     
     print(dfforecast)

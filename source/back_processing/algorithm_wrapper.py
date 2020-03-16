@@ -1,4 +1,4 @@
-from gui.algorithms import emaalgorithm
+from source.back_processing.algorithms import emaalgorithm
 from PyQt5.QtCore import *
 
 

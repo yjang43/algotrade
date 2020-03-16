@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
-from gui.account import AccountPage
-from gui.auto_trade import AutoTradePage
-from gui.data_visualization import DataVisualizationPage
+from source.gui.account import AccountPage
+from source.gui.auto_trade import AutoTradePage
+from source.gui.data_visualization import DataVisualizationPage
 
 
 class MainWindow(QMainWindow):

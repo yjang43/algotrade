@@ -1,6 +1,6 @@
-from gui.pages import *
+from source.gui.pages import *
 import pandas as pd
-from CandlestickGraph import CandlestickGraph
+from source.gui.CandlestickGraph import CandlestickGraph
 
 class AccountPage(PageWidget):
 
@@ -17,7 +17,7 @@ class AccountPage(PageWidget):
 
         # user icon
         user_icon = QLabel()
-        icon_image = QPixmap('gui/profileIcon.png')
+        icon_image = QPixmap('source/gui/profileIcon.png')
         user_icon.setPixmap(icon_image)
         user_icon.setScaledContents(True)
         user_icon.setFixedSize(100, 100)
@@ -40,7 +40,7 @@ class AccountPage(PageWidget):
         # coin status
         user_coin_title = QLabel('my coin')
         user_coin_title.setFixedSize(250, 30)
-        user_coin_table = df_to_table(pd.read_csv('csv/coinsowned.csv'))
+        user_coin_table = df_to_table(pd.read_csv('source/data/coinsowned.csv'))
         # user_coin_table = QTableWidget(10, 5)
         # user_coin_table.setFixedSize(250, 100)
         # user_coin_table.setFont(QFont("Times", 12))
@@ -66,7 +66,7 @@ class AccountPage(PageWidget):
         page.setLayout(QVBoxLayout())
         notification_label = QLabel("Notification")
         notification_label.setFixedSize(250, 30)
-        notification_file_path = "gui/notification.txt"
+        notification_file_path = "source/gui/notification.txt"
         notification = NotificationLog(notification_file_path)
         page.layout().addWidget(notification_label)
         page.layout().addWidget(notification)
@@ -76,19 +76,20 @@ class AccountPage(PageWidget):
         page = QWidget()
         page.setFixedSize(250, 450)
         page.setLayout(QVBoxLayout())
-        df = pd.read_csv("csv/ohlcv.csv")
+        df = pd.read_csv("source/data/dayohlcv.csv")
         # bitcoin_graph = CoinGraph(title='btc', labels={'left': 'price', 'bottom': 'time'})
         # bitcoin_graph.getPlotItem().addItem(GraphData(df))
         bitcoin_graph = CandlestickGraph(df)
-        coin_graph = CoinGraph(title='other coin', labels={'left': 'price', 'bottom': 'time'})
-        coin_graph.getPlotItem().addItem(GraphData(df))
-        pdi = PlotDataItem()
-        pdi.setData(df[['Time', 'Volume']].to_numpy())
-        coin_graph.getPlotItem().addItem(pdi)
-        tmp = df['Time']
-        coin_graph.getPlotItem().setXRange(tmp.loc[1], tmp.loc[30])
+        bitcoin_graph.setFixedSize(250, 130)
+        # coin_graph = CoinGraph(title='other coin', labels={'left': 'price', 'bottom': 'time'})
+        # coin_graph.getPlotItem().addItem(GraphData(df))
+        # pdi = PlotDataItem()
+        # pdi.setData(df[['Time', 'Volume']].to_numpy())
+        # coin_graph.getPlotItem().addItem(pdi)
+        # tmp = df['Time']
+        # coin_graph.getPlotItem().setXRange(tmp.loc[1], tmp.loc[30])
         page.layout().addWidget(bitcoin_graph)
-        page.layout().addWidget(coin_graph)
+        # page.layout().addWidget(coin_graph)
         return page
 
 

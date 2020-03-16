@@ -50,7 +50,7 @@ def emacheck(shortterm, mediumterm, longterm):
 
     dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
     dfma.columns = ['Short-term MA (MA' + str(shortterm) + ')', 'Short-term EMA (EMA' + str(shortterm) + ')', 'Medium-term EMA (EMA' + str(mediumterm) + ')', 'Long-term EMA (EMA' + str(longterm) + ')']
-    dfma.to_csv (r'source/csv/1dayma.csv', header=True)
+    dfma.to_csv (r'source/data/1dayma.csv', header=True)
     print(dfma)
 
     recentma = dfma.iloc[dfma.shape[0]-1]
@@ -60,7 +60,7 @@ def emacheck(shortterm, mediumterm, longterm):
     prevma = dfma.iloc[dfma.shape[0]-2]
     prevshortema = prevma[1]
     prevmediumema = prevma[2]
-    prevlongema = prevma[3]
+    prevlongema = prevma
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55

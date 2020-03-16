@@ -1,6 +1,7 @@
 #import
-from gui.pages import *
-from gui.algorithm_wrapper import run_algorithm, emaalgorithm
+from source.gui.pages import *
+from source.back_processing.algorithm_wrapper import run_algorithm, emaalgorithm
+import source.back_processing.thread_control as thread_control
 
 
 class AutoTradePage(PageWidget):
@@ -48,7 +49,7 @@ class AutoTradePage(PageWidget):
         :return: update trade history
         """
         # upload DataFrame from the file
-        df = pd.read_csv('gui/trade_history.csv')
+        df = pd.read_csv('source/gui/trade_history.csv')
 
         # refresh panel2
         self.panel2.hide()
@@ -57,7 +58,7 @@ class AutoTradePage(PageWidget):
 
     def update_session(self):
         # upload DataFrame from the file
-        df = pd.read_csv('gui/sessions.csv')
+        df = pd.read_csv('source/back_processing/sessions.csv')
 
         # refresh panel2
         self.panel3.hide()
@@ -102,12 +103,12 @@ class AutoTradePage(PageWidget):
             # self.algorithm.run_algo()
 
             # add session addition history to sessions
-            df: pd.DataFrame = pd.read_csv('gui/sessions.csv')
+            df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
             d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.process_id],
                  'algorithm': ["algorithm"], 'profit': ['']}    # session data
             df_to_add = pd.DataFrame(d)
             df = df_to_add.append(df, ignore_index=False)
-            df.to_csv('gui/sessions.csv', index=False)
+            df.to_csv('source/back_processing/sessions.csv', index=False)
             self.update_session()
 
 
@@ -155,7 +156,7 @@ class AutoTradePage(PageWidget):
         lb = QLabel("trade history")
 
         # trade history table
-        df = pd.read_csv('gui/trade_history.csv')
+        df = pd.read_csv('source/gui/trade_history.csv')
         self.tb = df_to_table(df)
 
         # add components
@@ -170,7 +171,7 @@ class AutoTradePage(PageWidget):
         panel.setLayout(QVBoxLayout())
         session_lb = QLabel("Sessions")
         # date, session #. algorithm, benefit
-        session_df = pd.read_csv("gui/sessions.csv")
+        session_df = pd.read_csv("source/back_processing/sessions.csv")
         if session_df.shape[0] > 5:
             raise ValueError("there cannot be more than five sessions")
         session_table = df_to_table(session_df)
@@ -188,10 +189,10 @@ class AutoTradePage(PageWidget):
             if self.session_df_row == -1:
                 print("invalid row clicked")
                 return
-            df = pd.read_csv("gui/sessions.csv")
+            df = pd.read_csv("source/back_processing/sessions.csv")
             df = session_df.drop(self.session_df_row, axis='index')
             df = df.reset_index(drop=True)
-            df.to_csv("gui/sessions.csv", index=False)
+            df.to_csv("source/back_processing/sessions.csv", index=False)
             self.thread_manager.kill_process(self.session_num_clicked)
             self.session_df_row = -1
             self.session_num_clicked = -1

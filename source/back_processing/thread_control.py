@@ -40,14 +40,14 @@ class ThreadManager(QObject):
     def trade_history_update(self, trade_info: Dict):
         # date, session, buy/sell, price
         # dictionary of strings
-        df: pd.DataFrame = pd.read_csv('gui/trade_history.csv')
+        df: pd.DataFrame = pd.read_csv('source/gui/trade_history.csv')
         d = trade_info
         print(d)
         for key in d:
             d[key] = d[key].split()
         df_to_add = pd.DataFrame(d)
         df = df_to_add.append(df, ignore_index=False)
-        df.to_csv('gui/trade_history.csv', index=False)
+        df.to_csv('source/gui/trade_history.csv', index=False)
 
     def get_process(self, process_number):
         return self.threads.get(process_number)

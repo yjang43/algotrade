@@ -1,4 +1,4 @@
-from gui.pages import *
+from source.gui.pages import *
 
 class DataVisualizationPage(PageWidget):
     def __init__(self):
