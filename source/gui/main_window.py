@@ -2,11 +2,14 @@ from PyQt5.QtWidgets import *
 from source.gui.account import AccountPage
 from source.gui.auto_trade import AutoTradePage
 from source.gui.data_visualization import DataVisualizationPage
+from source.gui.login_dialog import LoginDialog
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        login_dialog = LoginDialog(self)
+        login_dialog.exec()
         # main widget general setting
         main_widget = QWidget()
         main_widget.setFixedSize(800, 450)
@@ -33,6 +36,8 @@ class MainWindow(QMainWindow):
 
         main_widget_layout.addWidget(page_buttons)
         main_widget_layout.addWidget(self.stack_widget)
+
+
 
 
 class PageButtons(QWidget):

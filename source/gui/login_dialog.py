@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-import sys
+
 
 class LoginDialog(QDialog):
     def __init__(self, *args, **kwargs):
@@ -20,7 +19,6 @@ class LoginDialog(QDialog):
         layout.addWidget(self.loginPW)
         layout.addWidget(self.enter)
         self.setLayout(layout)
-        login = LoginDialog(self)
 
     def check_account(self):
         print("clicked")
@@ -29,29 +27,5 @@ class LoginDialog(QDialog):
             self.status.repaint()
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        d = LoginDialog()
-        d.exec_()
-        layout = QVBoxLayout()
-        b = QPushButton('enter')
-        b.clicked.connect(self.settext)
-        self.l = QLabel('abc', self)
-        self.l.setFixedSize(100, 100)
-        layout.addWidget(self.l)
-        layout.addWidget(b)
-        w = QWidget()
-        w.setLayout(layout)
-        self.setCentralWidget(w)
-        self.show()
-
-    def settext(self):
-        self.l.setText('abcd')
-        self.l.repaint()
-# https://freeprog.tistory.com/373
-# app = QApplication(sys.argv)
-# main_window = MainWindow()
-# app.exec_()
 
 
