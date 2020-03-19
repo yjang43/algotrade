@@ -4,7 +4,7 @@
 13MAR20: Background processing added
 13MAR20: Candlestick graph created
 
-##################################
+################################################################
 the order of old to new
 add notification in this file in
 Do not go over 30 character per line

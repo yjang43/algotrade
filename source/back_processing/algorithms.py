@@ -60,7 +60,7 @@ def emacheck(shortterm, mediumterm, longterm):
     prevma = dfma.iloc[dfma.shape[0]-2]
     prevshortema = prevma[1]
     prevmediumema = prevma[2]
-    prevlongema = prevma
+    prevlongema = prevma[3]
 
     #BUY : 9EMA over the 21 while already above 55
     #SELL : 9 crosses below 21 while already below 55

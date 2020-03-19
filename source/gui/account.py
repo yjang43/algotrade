@@ -1,6 +1,6 @@
 from source.gui.pages import *
 import pandas as pd
-from source.gui.CandlestickGraph import CandlestickGraph
+from source.gui.candlestick_graph import CandlestickGraph
 
 class AccountPage(PageWidget):
 
@@ -8,7 +8,6 @@ class AccountPage(PageWidget):
         super().__init__()
         self.layout().addWidget(self.set_panel1())
         self.layout().addWidget(self.set_panel2())
-        self.layout().addWidget(self.set_panel3())
 
     def set_panel1(self):
         panel = QWidget()
@@ -62,53 +61,23 @@ class AccountPage(PageWidget):
 
     def set_panel2(self):
         page = QWidget()
-        page.setFixedSize(250, 450)
+        page.setFixedSize(500, 450)
         page.setLayout(QVBoxLayout())
         notification_label = QLabel("Notification")
-        notification_label.setFixedSize(250, 30)
+        notification_label.setFixedSize(500, 30)
         notification_file_path = "source/gui/notification.txt"
         notification = NotificationLog(notification_file_path)
         page.layout().addWidget(notification_label)
         page.layout().addWidget(notification)
         return page
 
-    def set_panel3(self):
-        page = QWidget()
-        page.setFixedSize(250, 450)
-        page.setLayout(QVBoxLayout())
-        df = pd.read_csv("source/data/dayohlcv.csv")
-        # bitcoin_graph = CoinGraph(title='btc', labels={'left': 'price', 'bottom': 'time'})
-        # bitcoin_graph.getPlotItem().addItem(GraphData(df))
-        bitcoin_graph = CandlestickGraph(df)
-        bitcoin_graph.setFixedSize(250, 130)
-        # coin_graph = CoinGraph(title='other coin', labels={'left': 'price', 'bottom': 'time'})
-        # coin_graph.getPlotItem().addItem(GraphData(df))
-        # pdi = PlotDataItem()
-        # pdi.setData(df[['Time', 'Volume']].to_numpy())
-        # coin_graph.getPlotItem().addItem(pdi)
-        # tmp = df['Time']
-        # coin_graph.getPlotItem().setXRange(tmp.loc[1], tmp.loc[30])
-        page.layout().addWidget(bitcoin_graph)
-        # page.layout().addWidget(coin_graph)
-        return page
 
 
-class GraphData(PlotDataItem):
-    def __init__(self, df: pd.DataFrame, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        price_data = self.open_price(df)
-        self.setData(price_data)
-
-    def open_price(self, df: pd.DataFrame):
-        # time and open price
-        price:pd.DataFrame = df[['Time', 'Open']]
-        price = price.to_numpy()
-        return price
 
 class NotificationLog(QListWidget):
     def __init__(self, file_path):
         super().__init__()
-        self.setFixedSize(250, 400)
+        self.setFixedSize(500, 400)
         self.setSizePolicy(5, 5)
         self.load_notification(file_path)
     
@@ -119,13 +88,5 @@ class NotificationLog(QListWidget):
                 notification_list.insert(0, line.rstrip())
         self.addItems(notification_list)
 
-    
-    
-class CoinGraph(PlotWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setFixedSize(250, 130)
-        self.showAxis('top', False)
-        self.setBackground('w')
 
 
