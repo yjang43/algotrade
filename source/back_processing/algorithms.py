@@ -18,12 +18,13 @@ def emaalgorithm(investment = 0, period = 60, shortterm = 10, mediumterm = 20, l
         if(checkresult[0]):
             #BUY
             print("BUY")
+            trade_info.emit({'date': cur_datetime(), 'session_num': str(process_id), 'buy_sell': 'buy', 'amount': '1$'})
         elif(checkresult[1]):
             #SELL
             print("SELL")
+            trade_info.emit({'date': cur_datetime(), 'session_num': str(process_id), 'buy_sell': 'sell', 'amount': '1$'})
         else:
             print("PASS")
-            trade_info.emit({'date': cur_datetime(), 'session_num': str(process_id), 'buy_sell': 'buy', 'amount': '1$'})
         time.sleep(10)
         timecount = timecount + 1
         print("counter : " , timecount)
@@ -73,6 +74,7 @@ def emacheck(shortterm, mediumterm, longterm):
         pass
 
     return buysignal,sellsignal
+    
 def cur_datetime():
     """
     return string of current date time
