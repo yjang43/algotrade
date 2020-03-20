@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pandas as pd
-from pyqtgraph import *
+import pyqtgraph as pg
 import sys
 import time
 
@@ -13,7 +13,7 @@ make graph, right top will show status in which generates open close high low vo
 """
 
 
-class CandlestickGraph(PlotWidget):
+class CandlestickGraph(pg.PlotWidget):
     """
     generate candlestick graph with data in DataFrame
     """
@@ -63,6 +63,13 @@ class CandlestickGraph(PlotWidget):
             candle_stick.setPos(i * CandlestickItem.CANDLESTICK_GAP - CandlestickItem.CANDLESTICK_WIDTH / 2, d['Open'])
             self.addItem(candle_stick)
 
+    def update_candlesticks(self, data):
+        self.data = data[['Time', 'Open', 'Close', 'High', 'Low']]
+        self.clear()
+        self.time_range, self.price_range = self.get_range(data)      # look at 100 most recent values
+        self.generate_candlesticks()
+        self.setRange(xRange=self.time_range, yRange=self.price_range, padding=0.01)
+
 
 class CandlestickItem(QGraphicsItem):
     CANDLESTICK_GAP = 100
@@ -89,7 +96,7 @@ class CandlestickItem(QGraphicsItem):
         painter.fillRect(candle, candle_color)
 
 
-class StringAxis(AxisItem):
+class StringAxis(pg.AxisItem):
     def __init__(self, timeline, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeline = timeline

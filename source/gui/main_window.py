@@ -10,7 +10,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         login_dialog = LoginDialog(self)
         login_dialog.move(500, 300)
-        # login_dialog.exec()
+        login_dialog.exec()
         # main widget general setting
         main_widget = QWidget()
         main_widget.setFixedSize(800, 450)
@@ -31,12 +31,27 @@ class MainWindow(QMainWindow):
 
         page_each_button = [button for button in page_buttons.children() if type(button) is PageButtons.PageButton]
         print(page_each_button[0].name)
-        page_each_button[0].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(0))
-        page_each_button[1].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(1))
-        page_each_button[2].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(2))
+        # page_each_button[0].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(0))
+        # page_each_button[1].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(1))
+        # page_each_button[2].clicked.connect(lambda x: self.stack_widget.setCurrentIndex(2))
+        page_each_button[0].clicked.connect(self.set_1)
+        page_each_button[1].clicked.connect(self.set_2)
+        page_each_button[2].clicked.connect(self.set_3)
 
         main_widget_layout.addWidget(page_buttons)
         main_widget_layout.addWidget(self.stack_widget)
+
+    def set_1(self):
+        self.stack_widget.setCurrentIndex(0)
+        self.repaint()
+
+    def set_2(self):
+        self.stack_widget.setCurrentIndex(1)
+        self.repaint()
+
+    def set_3(self):
+        self.stack_widget.setCurrentIndex(2)
+        self.repaint()
 
 
 

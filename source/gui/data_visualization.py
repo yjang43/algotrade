@@ -1,5 +1,6 @@
 from source.gui.pages import *
 from source.gui.candlestick_graph import CandlestickGraph
+import ccxt
 
 class DataVisualizationPage(PageWidget):
     def __init__(self):
@@ -16,19 +17,20 @@ class DataVisualizationPage(PageWidget):
         graph_layout.setSpacing(0)
         panel.setLayout(graph_layout)
 
-        bar = self.option_bar()
-        bar.setFixedSize(600, 50)
+        bar = SearchCoin()
 
         df = pd.read_csv("source/data/dayohlcv.csv")
-        bitcoin_graph = CandlestickGraph(df)
-        bitcoin_graph.setFixedSize(600, 300)
+        self.bitcoin_graph = CandlestickGraph(df)
+        self.bitcoin_graph.setFixedSize(600, 300)
 
         graph_layout.addWidget(bar)
-        graph_layout.addWidget(bitcoin_graph)
+        graph_layout.addWidget(self.bitcoin_graph)
 
         return panel
 
     def option_bar(self):
+        def update_graph():
+            self.bitcoin_graph.update_candlesticks(pd.read_csv("source/data/minuteohlcv.csv"))
         bar = QWidget()
         bar_layout = QHBoxLayout()
         bar.setLayout(bar_layout)
@@ -41,6 +43,7 @@ class DataVisualizationPage(PageWidget):
         curr_option_label = QLabel("current option")
 
         help_button = QPushButton("H")
+        help_button.clicked.connect(update_graph)
         # help_button.clicked.connect(print("clicked"))
 
         bar_layout.addWidget(options)
@@ -67,32 +70,52 @@ class DataVisualizationPage(PageWidget):
         check2 = QCheckBox('check2')
         check2.setFixedSize(100, 30)
         check2.setContentsMargins(0, 0, 0, 0)
-        check3 = QCheckBox('check3')
-        check3.setFixedSize(100, 30)
-        check3.setContentsMargins(0, 0, 0, 0)
-        check4 = QCheckBox('check4')
-        check4.setFixedSize(100, 30)
-        check4.setContentsMargins(0, 0, 0, 0)
-        check5 = QCheckBox('check5')
-        check5.setFixedSize(100, 30)
-        check5.setContentsMargins(0, 0, 0, 0)
-        check6 = QCheckBox('check6')
-        check6.setFixedSize(100, 30)
-        check6.setContentsMargins(0, 0, 0, 0)
+
 
         # layout.addWidget(label)
         layout.addWidget(check1, 0, 0)
         layout.addWidget(check2, 1, 0)
-        layout.addWidget(check3, 2, 0)
-        layout.addWidget(check4, 3, 0)
-        layout.addWidget(check5, 4, 0)
-        layout.addWidget(check6, 5, 0)
+
         return panel
 
 
 
 
+class SearchCoin(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setFixedSize(600, 50)
+        self.current_coin_searched = 'BTC/USDT'
+        layout = QHBoxLayout()
+        self.setLayout(layout)
 
+        exchange = ccxt.binance()
+        exchange.load_markets()
+        self.coin_list = exchange.markets.keys()
+
+        self.search_bar = self.create_search_bar()
+        self.search_button = self.create_search_button()
+        layout.addWidget(self.search_bar)
+        layout.addWidget(self.search_button)
+
+    def create_search_bar(self):
+        search_bar = QLineEdit('search...')
+
+        # set autocomplete when user starts an input
+        completer = QCompleter(self.coin_list)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        search_bar.setCompleter(completer)
+        search_bar.textChanged.connect(lambda x: print(x))
+        return search_bar
+
+    def create_search_button(self):
+        def set_current_coin():
+            self.current_coin_searched = self.search_bar.text()
+            print('current coin searched; ', self.current_coin_searched)
+        search_button = QPushButton('search')
+        search_button.clicked.connect(set_current_coin)
+        return search_button
 
 
 
