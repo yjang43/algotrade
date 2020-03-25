@@ -49,15 +49,16 @@ Currently, very basic of data visualization is supported.
 ![](https://github.com/yjang43/algotrade/blob/master/img/img_02.png)
 <br>
 Under auto trade page, user can choose an algorithm to start a session that automates
-trading (limited up to five sessions). Currently, a supported algorithms are the followings:
-<br>
-* ema/sma
-
+trading (limited up to five sessions). 
 <br>
 ![](https://github.com/yjang43/algotrade/blob/master/img/img_03.png)
 <br>
 ![](https://github.com/yjang43/algotrade/blob/master/img/img_04.png)
 <br>
+Currently, a supported algorithms are the followings:
+<br>
+* ema/sma
+
 
 We are currently working on adding additional algorithm.
 
