@@ -39,10 +39,24 @@ pip3 install statsmodels
 python3 application.py
 ```
 Once the program runs, a user can navigate their account information in account page.
+<br>
+![alt text](https://github.com/yjang43/algotrade/tree/master/source/image_1.png "img not available")
+<br>
+With data visualization page, the user can look at current status of the cryptocurrency market,
+and apply various algorithms to see which one is more accurate algorithm to apply for a certain market.
+Currently, very basic of data visualization is supported.
+<br>
+![alt text](https://github.com/yjang43/algotrade/tree/master/source/image_2.png "img not available")
+<br>
 Under auto trade page, user can choose an algorithm to start a session that automates
 trading (limited up to five sessions). Currently, a supported algorithms are the followings:
-<br/>
+<br>
 * ema/sma
+<br>
+![alt text](https://github.com/yjang43/algotrade/tree/master/source/image_3.png "img not available")
+<br>
+![alt text](https://github.com/yjang43/algotrade/tree/master/source/image_4.png "img not available")
+<br>
 
 We are currently working on adding additional algorithm.
 
