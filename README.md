@@ -40,22 +40,23 @@ python3 application.py
 ```
 Once the program runs, a user can navigate their account information in account page.
 <br>
-![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_01.png "img not available")
+![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_01.png =250x "img not available")
 <br>
 With data visualization page, the user can look at current status of the cryptocurrency market,
 and apply various algorithms to see which one is more accurate algorithm to apply for a certain market.
 Currently, very basic of data visualization is supported.
 <br>
-![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_02.png "img not available")
+![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_02.png =250x "img not available")
 <br>
 Under auto trade page, user can choose an algorithm to start a session that automates
 trading (limited up to five sessions). Currently, a supported algorithms are the followings:
 <br>
 * ema/sma
+
 <br>
-![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_03.png "img not available")
+![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_03.png =250x "img not available")
 <br>
-![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_04.png "img not available")
+![alt text](https://github.com/yjang43/algotrade/blob/master/img/img_04.png =250x "img not available")
 <br>
 
 We are currently working on adding additional algorithm.
