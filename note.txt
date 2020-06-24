@@ -1,0 +1,5 @@
+I found bug
+
+CandleStick axis does not update with the CandleStick graph.
+I checked the PlotItem source code. It doesn't seem to sync with pyqtgraph documentation.
+Out of my scope.

@@ -1,0 +1,7 @@
+#https://github.com/viotti/pyinstaller/commit/597af5cb01c064620b53ea1ee537e30f56fa481d
+
+
+pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' xyz.py
+
+
+when I run the app, login dialog.close() will close the whole app, so suggestion here is to use hide()

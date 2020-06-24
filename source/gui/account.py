@@ -1,15 +1,24 @@
-from source.gui.pages import *
+"""Renders account page
+
+The script covers every gist of graphical component in account page
+"""
 import pandas as pd
+
+from source.gui.pages import *
 from source.gui.candlestick_graph import CandlestickGraph
 
+
 class AccountPage(PageWidget):
+    """PageWidget that holds components related to account management"""
 
     def __init__(self):
+        """Initialize two panels"""
         super().__init__()
         self.layout().addWidget(self.set_panel1())
         self.layout().addWidget(self.set_panel2())
 
     def set_panel1(self):
+        """Creates sections fits into panel1"""
         panel = QWidget()
         panel.setFixedSize(250, 400)
         panel.setLayout(QVBoxLayout())
@@ -40,17 +49,9 @@ class AccountPage(PageWidget):
         user_coin_title = QLabel('my coin')
         user_coin_title.setFixedSize(250, 30)
         user_coin_table = df_to_table(pd.read_csv('source/data/coinsowned.csv'))
-        # user_coin_table = QTableWidget(10, 5)
-        # user_coin_table.setFixedSize(250, 100)
-        # user_coin_table.setFont(QFont("Times", 12))
-        # user_coin_table.setHorizontalHeaderLabels(['coin', 'value', 'invest', 'value', '(%)'])
-        # user_coin_table.setColumnWidth(0, 30)
-        # user_coin_table.setColumnWidth(1, 50)
-        # user_coin_table.setColumnWidth(2, 50)
-        # user_coin_table.setColumnWidth(3, 50)
-        # user_coin_table.setColumnWidth(4, 40)
         for row in range(user_coin_table.rowCount()):
             user_coin_table.setRowHeight(row, 10)
+
         panel.layout().addWidget(user_icon)
         panel.layout().addWidget(user_tot_balance)
         panel.layout().addWidget(user_tot_balance_table)
@@ -60,13 +61,16 @@ class AccountPage(PageWidget):
         return panel
 
     def set_panel2(self):
+        """Set components fit into panel2"""
         page = QWidget()
         page.setFixedSize(500, 450)
         page.setLayout(QVBoxLayout())
+
         notification_label = QLabel("Notification")
         notification_label.setFixedSize(500, 30)
         notification_file_path = "source/gui/notification.txt"
         notification = NotificationLog(notification_file_path)
+
         page.layout().addWidget(notification_label)
         page.layout().addWidget(notification)
         return page

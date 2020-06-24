@@ -10,7 +10,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         login_dialog = LoginDialog(self)
         login_dialog.move(500, 300)
-        login_dialog.exec()
+        # login_dialog.exec()
         # main widget general setting
         main_widget = QWidget()
         main_widget.setFixedSize(800, 450)
