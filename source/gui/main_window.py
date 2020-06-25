@@ -11,9 +11,12 @@ class MainWindow(QMainWindow):
         login_dialog = LoginDialog(self)
         login_dialog.move(500, 300)
         login_dialog.exec()
+
+        # login process page
+
         # main widget general setting
         main_widget = QWidget()
-        main_widget.setFixedSize(800, 450)
+        main_widget.setMinimumSize(800, 450)
         main_widget_layout = QVBoxLayout()
         main_widget.setLayout(main_widget_layout)
         self.setCentralWidget(main_widget)
@@ -21,6 +24,7 @@ class MainWindow(QMainWindow):
         # main widget add components
         page_buttons = PageButtons()
         self.stack_widget = QStackedWidget()
+        # self.stack_widget.setStyleSheet("background-color: red;")
 
         account_page = AccountPage()
         data_visualization_page = DataVisualizationPage()
@@ -52,8 +56,6 @@ class MainWindow(QMainWindow):
     def set_3(self):
         self.stack_widget.setCurrentIndex(2)
         self.repaint()
-
-
 
 
 class PageButtons(QWidget):

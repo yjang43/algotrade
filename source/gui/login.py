@@ -4,6 +4,8 @@ import ccxt
 
 
 class LoginDialog(QDialog):
+    is_login_correct = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle('Login')

@@ -9,7 +9,7 @@ import source.back_processing.thread_control
 class PageWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(800, 400)
+        # self.setFixedSize(800, 400)
         self.setLayout(QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)

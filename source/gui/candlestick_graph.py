@@ -39,7 +39,9 @@ class CandlestickGraph(pg.PlotWidget):
         self.setRange(xRange=self.time_range, yRange=self.price_range, padding=0.01)
 
 
-        self.setFixedSize(500, 250)
+
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setSizePolicy(size_policy)
         self.setBackground('w')
 
     def get_range(self, data: pd.DataFrame):

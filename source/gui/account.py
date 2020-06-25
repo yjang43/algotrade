@@ -1,6 +1,9 @@
 from source.gui.pages import *
 import pandas as pd
+
 from source.gui.candlestick_graph import CandlestickGraph
+from source.gui.login import LoginDialog
+
 
 class AccountPage(PageWidget):
 
@@ -10,61 +13,40 @@ class AccountPage(PageWidget):
         self.layout().addWidget(self.set_panel2())
 
     def set_panel1(self):
-        panel = QWidget()
-        panel.setFixedSize(250, 400)
+        panel = QWidget(parent=self)
+        panel.setMinimumSize(250, 400)
+        panel.setMaximumWidth(500)
         panel.setLayout(QVBoxLayout())
 
-        # user icon
-        user_icon = QLabel()
-        icon_image = QPixmap('source/gui/profileIcon.png')
-        user_icon.setPixmap(icon_image)
-        user_icon.setScaledContents(True)
-        user_icon.setFixedSize(100, 100)
+        # set welcome box
+        #   - if logged in, welcome
+        #   - if not logged in, warn user use of this app will be limitted
+        welcome_text = QLabel()
+        welcome_text.setTextFormat(Qt.RichText)
+        if LoginDialog.is_login_correct:
+            welcome_text.setText(
+                "<h1>Welcome User</h1>"
+            )
+        else:
+            welcome_text.setText(
+                "<h1>Welcome User</h1>"
+                "As you have not successfully logged in,"
+                "some services will be limited"
+            )
 
-        # user balance status
-        user_tot_balance = QLabel("total balance")
-        user_tot_balance.setFixedSize(250, 30)
-        user_tot_balance_table = QTableWidget()
-        user_tot_balance_table.setRowCount(1)
-        user_tot_balance_table.setColumnCount(4)
-        user_tot_balance_table.setFixedHeight(45)
-        user_tot_balance_table.setHorizontalHeaderLabels(['buy power', 'asset', 'profit', '(%)'])
-        user_tot_balance_table.setColumnWidth(0, 70)
-        user_tot_balance_table.setColumnWidth(1, 50)
-        user_tot_balance_table.setColumnWidth(2, 50)
-        user_tot_balance_table.setColumnWidth(3, 40)
-        for row in range(user_tot_balance_table.rowCount()):
-            user_tot_balance_table.setRowHeight(row, 10)
+        asset_table = AssetTable(pd.read_csv('source/data/coinsowned.csv'))
 
-        # coin status
-        user_coin_title = QLabel('my coin')
-        user_coin_title.setFixedSize(250, 30)
-        user_coin_table = df_to_table(pd.read_csv('source/data/coinsowned.csv'))
-        # user_coin_table = QTableWidget(10, 5)
-        # user_coin_table.setFixedSize(250, 100)
-        # user_coin_table.setFont(QFont("Times", 12))
-        # user_coin_table.setHorizontalHeaderLabels(['coin', 'value', 'invest', 'value', '(%)'])
-        # user_coin_table.setColumnWidth(0, 30)
-        # user_coin_table.setColumnWidth(1, 50)
-        # user_coin_table.setColumnWidth(2, 50)
-        # user_coin_table.setColumnWidth(3, 50)
-        # user_coin_table.setColumnWidth(4, 40)
-        for row in range(user_coin_table.rowCount()):
-            user_coin_table.setRowHeight(row, 10)
-        panel.layout().addWidget(user_icon)
-        panel.layout().addWidget(user_tot_balance)
-        panel.layout().addWidget(user_tot_balance_table)
-        panel.layout().addWidget(user_coin_title)
-        panel.layout().addWidget(user_coin_table)
+        panel.layout().addWidget(welcome_text)
+        panel.layout().addWidget(asset_table)
 
         return panel
 
     def set_panel2(self):
-        page = QWidget()
-        page.setFixedSize(500, 450)
+        page = QWidget(parent=self)
+        page.setMinimumSize(500, 450)
         page.setLayout(QVBoxLayout())
         notification_label = QLabel("Notification")
-        notification_label.setFixedSize(500, 30)
+        notification_label.setFixedHeight(30)
         notification_file_path = "source/gui/notification.txt"
         notification = NotificationLog(notification_file_path)
         page.layout().addWidget(notification_label)
@@ -72,13 +54,9 @@ class AccountPage(PageWidget):
         return page
 
 
-
-
 class NotificationLog(QListWidget):
     def __init__(self, file_path):
         super().__init__()
-        self.setFixedSize(500, 400)
-        self.setSizePolicy(5, 5)
         self.load_notification(file_path)
     
     def load_notification(self, file_path):
@@ -87,6 +65,40 @@ class NotificationLog(QListWidget):
             for line in f:
                 notification_list.insert(0, line.rstrip())
         self.addItems(notification_list)
+
+
+class AssetTable(QTableWidget):
+    def __init__(self, asset_df: pd.DataFrame, *args, **kwargs):
+        row_num = asset_df.shape[0]
+        col_num = asset_df.shape[1]
+        super().__init__(row_num, col_num, *args, **kwargs)
+
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setSizePolicy(size_policy)
+        self.asset_df = asset_df
+        self.table_init()
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.setInterval(10000)
+        self.timer.start()
+
+    def table_init(self):
+        column_names = self.asset_df.columns.to_list()
+        self.setHorizontalHeaderLabels(column_names)
+        for i in range(self.rowCount()):
+            for j in range(self.columnCount()):
+                value = QTableWidgetItem()
+                self.setItem(i, j, value)
+                value.setText(str(self.asset_df.iloc[i, j]))
+
+    def update(self):
+        for i in range(self.rowCount()):
+            # self.item(i, 3).setText(str(self.asset_df.iloc[i, 3]))
+            self.item(i, 3).setText("updated value")
+
+        super().update()
+
 
 
 
