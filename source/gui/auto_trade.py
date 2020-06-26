@@ -113,8 +113,9 @@ class AutoTradePage(PageWidget):
 
 
         # set panel general attribute
-        panel = QWidget()
+        panel = QWidget(parent=self)
         panel.setMinimumSize(200, 400)
+        panel.setMaximumWidth(400)
         panel.setLayout(QVBoxLayout())
         input_section = QStackedWidget()
 
@@ -148,16 +149,19 @@ class AutoTradePage(PageWidget):
 
     def set_panel2(self):
         # set panel2 general attribute
-        panel = QWidget()
-        panel.setFixedSize(400, 400)
+        panel = QWidget(parent=self)
+        panel.setMinimumSize(400, 400)
         panel.setLayout(QVBoxLayout())
 
         # trade history label
         lb = QLabel("trade history")
+        lb.setFixedHeight(20)
 
         # trade history table
         df = pd.read_csv('source/gui/trade_history.csv')
         self.tb = df_to_table(df)
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.tb.setSizePolicy(size_policy)
 
         # add components
         panel.layout().addWidget(lb)
@@ -166,15 +170,18 @@ class AutoTradePage(PageWidget):
         return panel
 
     def set_panel3(self):
-        panel = QWidget()
-        panel.setFixedSize(200, 400)
+        panel = QWidget(parent=self)
+        panel.setMinimumSize(200, 400)
         panel.setLayout(QVBoxLayout())
         session_lb = QLabel("Sessions")
+        session_lb.setFixedHeight(30)
         # date, session #. algorithm, benefit
         session_df = pd.read_csv("source/back_processing/sessions.csv")
         if session_df.shape[0] > 5:
             raise ValueError("there cannot be more than five sessions")
         session_table = df_to_table(session_df)
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        session_table.setSizePolicy(size_policy)
         session_table.setRowCount(5)
 
         def set_session_clicked(row, col):
@@ -211,8 +218,6 @@ class AutoTradePage(PageWidget):
         panel.layout().addWidget(session_terminate_button)
         panel.layout().addWidget(status)
         return panel
-
-
 
 
 class OptionSection(QWidget):

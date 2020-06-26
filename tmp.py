@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.Qt import Qt
 import sys
+import json
 
 
 class CentralWidget(QWidget):
@@ -39,34 +41,72 @@ class BabyWidget(QWidget):
         # self.setMaximumSize(300, 500)
 
 
-from source.gui.login import LoginDialog
+class AssetContainer(QScrollArea):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setFixedHeight(150)
+
+        self.container = QWidget()
+        self.container.setLayout(QHBoxLayout())
+        self.set_assets()
+
+        self.setWidget(self.container)
+
+    def set_assets(self):
+        with open('tmp.json', 'r') as f:
+            coins = json.load(f)
+
+        for coin in coins:
+            label = QLabel(f"{coin}\n\t$1234")
+            label.setFixedSize(200, 100)
+            # label.setPixmap(QPixmap("img/bitcoin.png"))
+            # label.setScaledContents(True)
+            label.setStyleSheet(
+                f"background-image: url({coins[coin]['img']});"
+                "background-repeat: no-repeat;"
+                "background-position: center;"
+                "background-size: contain;"
+                "color: black;"
+                "font-size: 20pt;"
+            )
+
+            # label.setStyleSheet("border-image: url(img/bitcoin.png);")
+            self.container.layout().addWidget(label)
+        pass
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-<<<<<<< HEAD
-        self.setCentralWidget(CentralWidget(parent=self))
-        self.setMinimumSize(800, 500)
-=======
-        self.setContentsMargins(0, 0, 0, 0)
+        # self.setCentralWidget(CentralWidget(parent=self))
+        central_widget = QWidget()
+        central_widget.setLayout(QVBoxLayout())
+        label = QLabel("Demo")
+        label.setFixedHeight(40)
 
-        self.coins = QLineEdit("coin symbol...")
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.coins.setCompleter(completer)
-        self.coins.textChanged.connect(lambda x: print(x))
-        self.coins.returnPressed.connect(self.enter_pressed)
+        central_widget.layout().addWidget(label)
+        central_widget.layout().addWidget(AssetContainer())
 
-        self.setCentralWidget(self.coins)
->>>>>>> b5aa1508237fbd32d9c876f965568f24d5154d42
+        self.setCentralWidget(central_widget)
+        self.setFixedSize(300, 400)
         self.show()
-        # login = LoginDialog()
-        # login.exec()
 
 
-<<<<<<< HEAD
+class AssetCard(QLabel):
+    def __init__(self, asset_name: str, *args):
+        super().__init__(*args)
+        with open('tmp.json', 'r') as f:
+            data = json.load(f)
+        print(data[asset_name]['img'])
 
-=======
->>>>>>> b5aa1508237fbd32d9c876f965568f24d5154d42
+
+
+
 app = QApplication(sys.argv)
+AssetCard("bitcoin")
 main_window = MainWindow()
 app.exec_()
 
