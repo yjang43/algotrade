@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
 
         # login process page
 
+        # login_dialog.exec()
         # main widget general setting
         main_widget = QWidget()
         main_widget.setMinimumSize(800, 450)

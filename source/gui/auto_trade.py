@@ -114,7 +114,7 @@ class AutoTradePage(PageWidget):
 
         # set panel general attribute
         panel = QWidget()
-        panel.setFixedSize(200, 400)
+        panel.setMinimumSize(200, 400)
         panel.setLayout(QVBoxLayout())
         input_section = QStackedWidget()
 

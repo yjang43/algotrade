@@ -1,13 +1,20 @@
-from source.gui.pages import *
+"""Renders account page
+
+The script covers every gist of graphical component in account page
+"""
 import pandas as pd
 
+from source.gui.pages import *
 from source.gui.candlestick_graph import CandlestickGraph
 from source.gui.login import LoginDialog
 
 
+
 class AccountPage(PageWidget):
+    """PageWidget that holds components related to account management"""
 
     def __init__(self):
+        """Initialize two panels"""
         super().__init__()
         self.layout().addWidget(self.set_panel1())
         self.layout().addWidget(self.set_panel2())
@@ -15,7 +22,7 @@ class AccountPage(PageWidget):
     def set_panel1(self):
         panel = QWidget(parent=self)
         panel.setMinimumSize(250, 400)
-        panel.setMaximumWidth(500)
+        panel.setMaximumWidth(800)
         panel.setLayout(QVBoxLayout())
 
         # set welcome box
@@ -42,13 +49,16 @@ class AccountPage(PageWidget):
         return panel
 
     def set_panel2(self):
+        """Set components fit into panel2"""
         page = QWidget(parent=self)
         page.setMinimumSize(500, 450)
         page.setLayout(QVBoxLayout())
+
         notification_label = QLabel("Notification")
         notification_label.setFixedHeight(30)
         notification_file_path = "source/gui/notification.txt"
         notification = NotificationLog(notification_file_path)
+
         page.layout().addWidget(notification_label)
         page.layout().addWidget(notification)
         return page
@@ -57,8 +67,10 @@ class AccountPage(PageWidget):
 class NotificationLog(QListWidget):
     def __init__(self, file_path):
         super().__init__()
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setSizePolicy(size_policy)
         self.load_notification(file_path)
-    
+
     def load_notification(self, file_path):
         notification_list = list()
         with open(file_path) as f:
