@@ -7,7 +7,7 @@ import pandas as pd
 from source.gui.pages import *
 from source.gui.candlestick_graph import CandlestickGraph
 from source.gui.login import LoginDialog
-
+from source.account_management.my_exchange import Account
 
 
 class AccountPage(PageWidget):
@@ -30,7 +30,7 @@ class AccountPage(PageWidget):
         #   - if not logged in, warn user use of this app will be limitted
         welcome_text = QLabel()
         welcome_text.setTextFormat(Qt.RichText)
-        if LoginDialog.is_login_correct:
+        if Account.is_login_correct:
             welcome_text.setText(
                 "<h1>Welcome User</h1>"
             )
@@ -41,7 +41,7 @@ class AccountPage(PageWidget):
                 "some services will be limited"
             )
 
-        asset_table = AssetTable(pd.read_csv('source/data/coinsowned.csv'))
+        asset_table = AssetTable()
 
         panel.layout().addWidget(welcome_text)
         panel.layout().addWidget(asset_table)
@@ -80,20 +80,32 @@ class NotificationLog(QListWidget):
 
 
 class AssetTable(QTableWidget):
-    def __init__(self, asset_df: pd.DataFrame, *args, **kwargs):
-        row_num = asset_df.shape[0]
-        col_num = asset_df.shape[1]
-        super().__init__(row_num, col_num, *args, **kwargs)
+    def __init__(self, *args):
+        self.asset_df = self.df_init()
+
+        row_num = self.asset_df.shape[0]
+        col_num = self.asset_df.shape[1]
+        super().__init__(row_num, col_num, *args)
 
         size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setSizePolicy(size_policy)
-        self.asset_df = asset_df
         self.table_init()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
         self.timer.setInterval(10000)
         self.timer.start()
+
+    def df_init(self):
+        coins_owned = Account.get_coin_list()
+        coins_data = []
+        for coin in coins_owned:
+            coin_price = Account.get_coin_price(coin)
+            coin_balance = Account.get_coin_balance(coin)
+            coin_data = [coin, f"{coin_price: .2f}", f"{coin_balance: .2f}", f"{coin_price * coin_balance: .2f}"]
+            coins_data.append(coin_data)
+
+        return pd.DataFrame(coins_data, columns=['Name', 'Currency', 'Coin Balance', 'USD Value'])
 
     def table_init(self):
         column_names = self.asset_df.columns.to_list()
@@ -106,8 +118,14 @@ class AssetTable(QTableWidget):
 
     def update(self):
         for i in range(self.rowCount()):
-            # self.item(i, 3).setText(str(self.asset_df.iloc[i, 3]))
-            self.item(i, 3).setText("updated value")
+            coin = self.item(i, 0).text()
+            coin_price = Account.get_coin_price(coin)
+            coin_balance = Account.get_coin_balance(coin)
+            self.item(i, 1).setText(f"{coin_price: .2f}")
+            self.item(i, 2).setText(f"{coin_balance: .2f}")
+            self.item(i, 3).setText(f"{coin_price * coin_balance: .2f}")
+
+            # self.item(i, 3).setText("updated value")
 
         super().update()
 
