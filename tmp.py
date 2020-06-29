@@ -1,91 +1,153 @@
+import sys
+import json
+import re
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys
+from PyQt5.QtGui import *
+from PyQt5.Qt import Qt
+import ccxt
 
-class LoginDialog(QDialog):
+
+class CentralWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWindowTitle('Login')
-        self.status = QLabel()
-        self.status.setText("enter your account information")
-        self.loginID = QTextEdit('ID here...')
-        self.loginID.setFixedHeight(50)
-        self.loginPW = QTextEdit('PW here...')
-        self.loginPW.setFixedHeight(50)
-        self.enter = QPushButton('Enter')
-        self.enter.clicked.connect(self.check_account)
-        layout = QVBoxLayout()
-        layout.addWidget(self.status)
-        layout.addWidget(self.loginID)
-        layout.addWidget(self.loginPW)
-        layout.addWidget(self.enter)
-        self.setLayout(layout)
-        login = LoginDialog(self)
+        self.setLayout(QHBoxLayout())
+        self.setStyleSheet(
+            "background-color: lightgray;"
+        )
+        self.layout().setContentsMargins(0,0,0,0)
+        self.layout().setSpacing(0)
+        red = BabyWidget('red')
+        button = QPushButton("hello")
+        button.setFixedSize(100, 100)
+        red.layout().addWidget(button)
+        yellow = BabyWidget('yellow')
+        green = BabyWidget('green')
+        self.layout().addWidget(red)
+        self.layout().addWidget(yellow)
+        self.layout().addWidget(green)
+        print(red.sizeHint())
+        print(yellow.sizeHint())
+        print(green.sizeHint())
 
-    def check_account(self):
-        print("clicked")
-        if self.loginID.toPlainText() == 'Admin' and self.loginPW.toPlainText() == 'Admin':
-            self.status.setText("login successful!")
-            self.status.repaint()
+
+
+class BabyWidget(QWidget):
+    def __init__(self, color, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setLayout(QHBoxLayout())
+        self.layout().setContentsMargins(0,0,0,0)
+        self.layout().setSpacing(0)
+        self.layout().addWidget(QWidget(self))
+        self.setStyleSheet(f"background-color: {color}")
+        # self.setMaximumSize(300, 500)
+
+
+class AssetContainer(QScrollArea):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.exchange = ccxt.binance()
+        self.exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
+        self.exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
+        balance = self.exchange.fetch_balance()
+
+        self.coins_owned = [coin_name for coin_name in balance['total'] if balance['total'][coin_name] != 0]
+        for coin in self.coins_owned:
+            print(coin)
+            for section in balance[coin]:
+                print(section, balance[coin][section])
+
+
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setFixedHeight(150)
+
+        self.container = QWidget()
+        self.container.setLayout(QHBoxLayout())
+        self.set_assets()
+
+        self.setWidget(self.container)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_price)
+        self.timer.setInterval(1000)
+        self.timer.start()
+
+    def set_assets(self):
+
+
+        with open('tmp.json', 'r') as f:
+            coins = json.load(f)
+
+        for coin in self.coins_owned:
+            try:
+                orderbook = self.exchange.fetch_order_book(f'{coin}/USDT')
+            except ccxt.errors.BadSymbol:
+                break
+            bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
+            ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
+            spread = (ask - bid) if (bid and ask) else None
+            print(self.exchange.id, 'market price', {'bid': bid, 'ask': ask, 'spread': spread})
+
+            # label = QLabel(f"{coin}\n\t$1234")
+            label = QLabel(str(bid))
+            label.setFixedSize(200, 100)
+            # # label.setPixmap(QPixmap("img/bitcoin.png"))
+            # # label.setScaledContents(True)
+            # label.setStyleSheet(
+            #     f"background-image: url({coins[coin]['img']});"
+            #     "background-repeat: no-repeat;"
+            #     "background-position: center;"
+            #     "color: black;"
+            #     "font-size: 20pt;"
+            # )
+
+            # # label.setStyleSheet("border-image: url(img/bitcoin.png);")
+            self.container.layout().addWidget(label)
+        pass
+
+    def update_price(self):
+        print("update")
+        labels: QLabel = [c for c in self.widget().children() if type(c) == QLabel]
+        print(labels)
+        for l in labels:
+            price = float(l.text())
+            price += 1
+            l.setText(str(price))
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setContentsMargins(0, 0, 0, 0)
+        # self.setCentralWidget(CentralWidget(parent=self))
 
-        main = QWidget()
-        main.setFixedSize(250, 180)
-        main.setContentsMargins(0, 0, 0, 0)
+        central_widget = QWidget()
+        central_widget.setLayout(QVBoxLayout())
+        label = QLabel("Demo")
+        label.setFixedHeight(40)
 
-        ml = QHBoxLayout()
-        main.setLayout(ml)
-        w = QWidget()
+        central_widget.layout().addWidget(label)
+        central_widget.layout().addWidget(AssetContainer())
 
-        b = QPushButton("hello")
-        panel = QWidget()
-        ml.addWidget(w)
-        ml.addWidget(panel)
-
-        panel.setFixedSize(150, 180)
-        layout = QGridLayout()
-        panel.setLayout(layout)
-        # label = QLabel("123")
-        check1 = QCheckBox('check1')
-        check1.setFixedSize(100, 30)
-        check1.setContentsMargins(0, 0, 0, 0)
-        print(check1.size())
-        check2 = QCheckBox('check2')
-        check2.setFixedSize(100, 30)
-        check2.setContentsMargins(0, 0, 0, 0)
-        check3 = QCheckBox('check3')
-        check3.setFixedSize(100, 30)
-        check3.setContentsMargins(0, 0, 0, 0)
-        check4 = QCheckBox('check4')
-        check4.setFixedSize(100, 30)
-        check4.setContentsMargins(0, 0, 0, 0)
-        check5 = QCheckBox('check5')
-        check5.setFixedSize(100, 30)
-        check5.setContentsMargins(0, 0, 0, 0)
-        check6 = QCheckBox('check6')
-        check6.setFixedSize(100, 30)
-        check6.setContentsMargins(0, 0, 0, 0)
-
-        # layout.addWidget(label)
-        layout.addWidget(check1, 0, 0)
-        layout.addWidget(check2, 1, 0)
-        layout.addWidget(check3, 2, 0)
-        layout.addWidget(check4, 3, 0)
-        layout.addWidget(check5, 4, 0)
-        layout.addWidget(check6, 5, 0)
-        self.setCentralWidget(main)
+        self.setCentralWidget(central_widget)
+        self.setFixedSize(300, 400)
         self.show()
 
-    def settext(self):
-        self.l.setText('abcd')
-        self.l.repaint()
-# https://freeprog.tistory.com/373
+
+class AssetCard(QLabel):
+    def __init__(self, asset_name: str, *args):
+        super().__init__(*args)
+        with open('tmp.json', 'r') as f:
+            data = json.load(f)
+        print(data[asset_name]['img'])
+
+
+
+
 app = QApplication(sys.argv)
+AssetCard("bitcoin")
 main_window = MainWindow()
 app.exec_()
 

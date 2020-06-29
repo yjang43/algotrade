@@ -1,0 +1,14 @@
+{
+  "usd": {
+    "img": "img/usd.png",
+    "color": "green"
+  },
+  "bitcoin": {
+    "img": "img/bitcoin.png",
+    "color": "orange"
+  },
+  "ethereum": {
+    "img": "img/ethereum.png",
+    "color": "orange"
+  }
+}

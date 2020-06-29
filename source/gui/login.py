@@ -1,9 +1,14 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import ccxt
+import time
+
+from source.account_management.my_exchange import Account
+from tmp_do_not_add import apiKey, secret
 
 
 class LoginDialog(QDialog):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle('Login')
@@ -23,21 +28,27 @@ class LoginDialog(QDialog):
         self.setLayout(layout)
 
     def check_account(self):
+        # for develop purpose I bring keys from "tmp_do_not_add.py"
         public_key = self.loginID.toPlainText()
         private_key = self.loginPW.toPlainText()
-        exchange = ccxt.binance()
-        exchange.apiKey = public_key
-        exchange.secret = private_key
-
-        try:
-            exchange.fetch_balance()
-            is_login_correct = True
-        except ccxt.errors.AuthenticationError:
-            is_login_correct = False
+        public_key = apiKey
+        private_key = secret
+        # exchange = ccxt.binance()
+        # exchange.apiKey = public_key
+        # exchange.secret = private_key
+        #
+        # try:
+        #     exchange.fetch_balance()
+        #     is_login_correct = True
+        # except ccxt.errors.AuthenticationError:
+        #     is_login_correct = False
+        is_login_correct = Account.login(public_key, private_key)
+        print("login correct: ", is_login_correct)
 
         if is_login_correct:
             self.status.setText("login successful!")
             self.status.repaint()
+            time.sleep(2)
             self.close()
         else:
             self.status.setText("wrong credentials, try again")
