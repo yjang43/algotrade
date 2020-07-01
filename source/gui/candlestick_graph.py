@@ -26,12 +26,13 @@ class CandlestickGraph(pg.PlotWidget):
         # x_axis.setTicks([timeline_dict.items()])
         # x_axis.setTickSpacing([(3, 0), (1, 0), (0.25, 0)])
 
-        super().__init__(axisItems={'bottom': StringAxis(data['Time'], orientation='bottom')}, *args, **kwargs)
-        self.data = data[['Time', 'Open', 'Close', 'High', 'Low']]
-        self.time_range, self.price_range = self.get_range(data)      # look at 100 most recent values
-        # super().__init__(axisItems={'bottom': x_axis}, *args, **kwargs)
-        self.generate_candlesticks()
-        self.setRange(xRange=self.time_range, yRange=self.price_range, padding=0.01)
+        super().__init__()
+        # super().__init__(axisItems={'bottom': StringAxis(data['Time'], orientation='bottom')}, *args, **kwargs)
+        # self.data = data[['Time', 'Open', 'Close', 'High', 'Low']]
+        # self.time_range, self.price_range = self.get_range(data)      # look at 100 most recent values
+        # # super().__init__(axisItems={'bottom': x_axis}, *args, **kwargs)
+        # self.generate_candlesticks()
+        # self.setRange(xRange=self.time_range, yRange=self.price_range, padding=0.01)
 
         size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setSizePolicy(size_policy)
@@ -68,6 +69,7 @@ class CandlestickGraph(pg.PlotWidget):
         self.clear()
         self.time_range, self.price_range = self.get_range(data)      # look at 100 most recent values
         self.generate_candlesticks()
+        self.setAxisItems({'bottom': StringAxis(data['Time'], orientation='bottom')})
         self.setRange(xRange=self.time_range, yRange=self.price_range, padding=0.01)
 
 

@@ -49,8 +49,8 @@ class AssetContainer(QScrollArea):
         super().__init__(*args, **kwargs)
 
         self.exchange = ccxt.binance()
-        self.exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
-        self.exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
+        self.exchange.apiKey = ''
+        self.exchange.secret = ''
         balance = self.exchange.fetch_balance()
 
         self.coins_owned = [coin_name for coin_name in balance['total'] if balance['total'][coin_name] != 0]
@@ -72,12 +72,12 @@ class AssetContainer(QScrollArea):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_price)
-        self.timer.setInterval(1000)
+        self.timer.setInterval(10000)
         self.timer.start()
 
+        self.set_event()
+
     def set_assets(self):
-
-
         with open('tmp.json', 'r') as f:
             coins = json.load(f)
 
@@ -106,7 +106,6 @@ class AssetContainer(QScrollArea):
 
             # # label.setStyleSheet("border-image: url(img/bitcoin.png);")
             self.container.layout().addWidget(label)
-        pass
 
     def update_price(self):
         print("update")
@@ -116,6 +115,17 @@ class AssetContainer(QScrollArea):
             price = float(l.text())
             price += 1
             l.setText(str(price))
+
+    def set_event(self):
+        scroll_bar = self.horizontalScrollBar()
+
+        def print_bar_val():
+            print(scroll_bar.value())
+        print(scroll_bar.value())
+        self.t = QTimer()
+        self.t.timeout.connect(print_bar_val)
+        self.t.setInterval(1000)
+        self.t.start()
 
 
 class MainWindow(QMainWindow):
