@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import random
 from time import sleep
+import mainfunctions
 
 exchange = ccxt.binance()
 

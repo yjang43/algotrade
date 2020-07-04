@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
-import ema
+#import ema
 from threading import Timer
 
 
@@ -31,13 +31,13 @@ coinsinusd = []
 percentagechange = []
 sessions = []
 
-class Session:
-    elapsedTime = 0
-    total = 0
-    totalcoin = 0
-    totalcash = 0
-    totalprofit = 0
-    currency = ""
+# class Session:
+#     elapsedTime = 0
+#     total = 0
+#     totalcoin = 0
+#     totalcash = 0
+#     totalprofit = 0
+#     currency = ""
 
 
 def setkey(apikey, secretkey):
