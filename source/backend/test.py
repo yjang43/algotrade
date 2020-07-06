@@ -1,0 +1,3 @@
+from mainfunctions import *
+
+getBalance()

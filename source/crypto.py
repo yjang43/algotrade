@@ -178,19 +178,19 @@ def getBalance():
     print(dfcoinsowned)
     dfcoinsowned.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/data/coinsowned.csv', header=True)
 
-
     balanceinusd = 0
     for val in dfcoinsowned["in usd"]:
         balanceinusd += val
     print("Your total balance in USD : $" + str(balanceinusd))
     print("//////////////////////////////////////")
+    return(dfcoinsowned)
+
 
 def getRecentTrades():
     tradetime = []
     tradesymbol = []
     tradeamount = []
     tradeside = []
-    print("Your recent trades")
     if exchange.has['fetchMyTrades']:
         for val in coinsowned:
             if(val!= "BTC" and val!= "SBTC" and val != "VTHO" and val != "BCX"):
@@ -211,21 +211,26 @@ def getRecentTrades():
 
 
     dftrades.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/data/trades.csv', header=True)
-    print(dftrades)
+    print("Your recent trades : ")
+    if dftrades.empty:
+        print("None")
+        print("//////////////////////////////////////")
+    else:
+        print(dftrades)
+        print("//////////////////////////////////////")
 
-    print("//////////////////////////////////////")
+        print("Your recent buys")
+        isbuy = dftrades['tradeside']=="buy"
+        dftradesbuy = dftrades[isbuy]
+        print(dftradesbuy)
 
-    print("Your recent buys")
-    isbuy = dftrades['tradeside']=="buy"
-    dftradesbuy = dftrades[isbuy]
-    print(dftradesbuy)
+        print("Your recent sells")
+        issell = dftrades['tradeside']=="sell"
+        dftradessell = dftrades[issell]
+        print(dftradessell)
 
-    print("Your recent sells")
-    issell = dftrades['tradeside']=="sell"
-    dftradessell = dftrades[issell]
-    print(dftradessell)
+        print("//////////////////////////////////////")
 
-    print("//////////////////////////////////////")
 
 
 def testbuy(dfsignal, testUSDbalance, testBTCbalance):
@@ -318,8 +323,10 @@ print("//////////////////////////////////////")
 
 print("starting...")
 ohlcvsave()
+order = exchange.fetchOrders(symbol = undefined, since = undefined, limit = undefined, params = {})
+print(order)
 #ema.emaalgorithm()
-arima.ARIMAalgorithm()
+#arima.ARIMAalgorithm()
 
 
 #rt = RepeatedTimer(60, test) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE

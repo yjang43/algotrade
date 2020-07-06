@@ -9,7 +9,7 @@ from threading import Timer
 from algorithm import ema
 from algorithm import arima
 
-
+#hello
 #Classes  :
 
 class RepeatedTimer(object): #Class for repeated checking

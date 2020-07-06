@@ -10,14 +10,21 @@ exchange = ccxt.binance()
 
 def emaalgorithm(investment = 0, period = 60, shortterm = 10, mediumterm = 20, longterm = 50): #run for an hour
     timecount = 0
+    counter = 1
     while True : 
         checkresult = emacheck(shortterm, mediumterm, longterm)
-        if(checkresult[0]):
+        if(True):
             #BUY
+            print(getBalance())
+            buyamount = ((1/2)**(counter)) 
+            #exchange.createMarketBuyOrder("BTC/KRW", 0.01) ONLY ENABLE FOR ACTUAL TESTING, WILL ACTUALLY PLACE ORDER
             print("BUY")
+            counter+=1
         elif(checkresult[1]):
             #SELL
+            sellamount = ((1/2)**(counter)) 
             print("SELL")
+            counter+=1
         else:
             print("PASS")
         time.sleep(10)
@@ -45,7 +52,7 @@ def emacheck(shortterm, mediumterm, longterm):
 
     dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
     dfma.columns = ['Short-term MA (MA' + str(shortterm) + ')', 'Short-term EMA (EMA' + str(shortterm) + ')', 'Medium-term EMA (EMA' + str(mediumterm) + ')', 'Long-term EMA (EMA' + str(longterm) + ')']
-    dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/csv/1dayma.csv', header=True)
+    dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/data/1dayma.csv', header=True)
     print(dfma)
 
     recentma = dfma.iloc[dfma.shape[0]-1]
@@ -62,8 +69,10 @@ def emacheck(shortterm, mediumterm, longterm):
 
     if(prevshortema < prevlongema and prevshortema > prevmediumema and recentshortema < recentlongema and recentshortema < recentmediumema):
         buysignal = True
+        sellsignal = False
     elif(prevshortema > prevlongema and prevshortema < prevmediumema and recentshortema > recentlongema and recentshortema > recentmediumema):
         sellsignal = True
+        buysignal = False
     else:
         pass
 
