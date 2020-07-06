@@ -76,11 +76,11 @@ def cur_datetime():
     return ret
 
 
-def process(parameters: List, trade_info: pyqtSignal, process_id):
-    for n in range(60):
-        if n % 10 == 0:
-            cur_time = cur_datetime()
-            trade_info.emit({'date': cur_time, 'session_num': str(process_id), 'buy_sell': 'buy', 'amount': '1$'})
-        time.sleep(1)
-        print(n)
+# def process(parameters: List, trade_info: pyqtSignal, process_id):
+#     for n in range(60):
+#         if n % 10 == 0:
+#             cur_time = cur_datetime()
+#             trade_info.emit({'date': cur_time, 'session_num': str(process_id), 'buy_sell': 'buy', 'amount': '1$'})
+#         time.sleep(1)
+#         print(n)
 

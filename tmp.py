@@ -49,8 +49,8 @@ class AssetContainer(QScrollArea):
         super().__init__(*args, **kwargs)
 
         self.exchange = ccxt.binance()
-        self.exchange.apiKey = ''
-        self.exchange.secret = ''
+        self.exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
+        self.exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
         balance = self.exchange.fetch_balance()
 
         self.coins_owned = [coin_name for coin_name in balance['total'] if balance['total'][coin_name] != 0]

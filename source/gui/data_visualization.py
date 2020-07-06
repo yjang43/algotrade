@@ -12,7 +12,7 @@ class DataVisualizationPage(PageWidget):
         """Initializes instance"""
         super().__init__()
         self.layout().addWidget(self.data_visualization_panel())
-        self.layout().addWidget(self.data_analysis_panel())
+        # self.layout().addWidget(self.data_analysis_panel())
 
     def data_visualization_panel(self):
         """Creates data visualization panel"""
