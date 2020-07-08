@@ -80,7 +80,6 @@ class emaSession(Session):
     dfma = pd.concat([shortma,shortema,mediumema,longema], axis = 1)
     dfma.columns = ['Short-term MA (MA' + str(self.shortterm) + ')', 'Short-term EMA (EMA' + str(self.shortterm) + ')', 'Medium-term EMA (EMA' + str(self.mediumterm) + ')', 'Long-term EMA (EMA' + str(self.longterm) + ')']
     dfma.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/data/1dayma.csv', header=True)
-    #print(dfma)   
     return dfma
 
   def emacheck(self, shortterm, mediumterm, longterm):
