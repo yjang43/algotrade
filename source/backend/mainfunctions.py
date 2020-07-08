@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
+from emaSession import emaSession
 #import ema
 from threading import Timer
 
@@ -110,8 +111,10 @@ def getBalance():
     return(dfcoinsowned) #returns dataframe
 
 
-
-
+x = emaSession(1, "session-1", 2, exchange)
+y = emaSession(2, "session-2", 3, exchange)
+x.start()
+y.start()
 
 
 
