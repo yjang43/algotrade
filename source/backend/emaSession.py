@@ -2,6 +2,7 @@ import ccxt
 import threading
 import time
 import pandas as pd
+#import mainfunctions as mf
 
 class Session(threading.Thread):
 
@@ -45,19 +46,26 @@ class emaSession(Session):
     #buy in
     while True : 
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
-      if(checkresult[0]):
-         #BUY
-         #buyamount = (1/2) * totalcash
-         #totalcash -= buyamount
-         #exchange.createMarketBuyOrder(currency, buyamount)
-         
-         print("BUY")
+      if(True):
+          #BUY, account for price slippage
+          buyamount = (1/2) * self.totalcash
+          exchange.createMarketBuyOrder(currency, buyamount) #no gurantee that this succeeds
+          #once bought, subtract the amount from balance
+          time.sleep(10) #give time for transaction to happen
+          # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
+          # if(success, retrieve transaction history and make according changes to balance):
+          #   self.totalcash -= mytrade.cost
+          #   self.totalcoin += mytrade.amount
+          print("BUY")
       elif(checkresult[1]):
-         #SELL
-         #sellamount = (1/2)* totalcoin 
-         #totalcoin -= sellamount
-         #exchange.createMarketSellOrder(currency, sellamount)
-         print("SELL")
+          #SELL
+          sellamount = (1/2) * self.totalcoin
+          exchange.createMarketSellOrder(currency, sellamount)
+          # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
+          # if(success, retrieve transaction history and make according changes to balance):
+          #   self.totalcoin -= mytrade.amount
+          #   self.totalcash += mytrade.cost
+          print("SELL")
       else:
          print("PASS")
       time.sleep(10) #check every 10 seconds

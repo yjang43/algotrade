@@ -35,15 +35,19 @@ class emaSession(Session):
         while True : 
             checkresult = emacheck(shortterm, mediumterm, longterm)
             if(True):
-                #BUY
-                buyamount = (1/2) * totalcash
-                exchange.createMarketBuyOrder(currency, buyamount)
-                
+                #BUY, account for price slippage
+                buyamount = (1/2) * self.totalcash
+                exchange.createMarketBuyOrder(currency, buyamount) #no gurantee that this succeeds
+                #once bought, subtract the amount from balance
+                if(success, retrieve transaction history and make according changes to balance):
+                    self.totalcash -= usedcash
+                    self.totalcoin += buyamount
                 print("BUY")
             elif(checkresult[1]):
                 #SELL
-                sellamount = (1/2)* totalcoin 
-                totalcash -= sellamount
+                sellamount = (1/2)* self.totalcoin 
+                self.totalcoin -= sellamount
+                self.totalcash += 
                 exchange.createMarketSellOrder(currency, sellamount)
                 print("SELL")
             else:
