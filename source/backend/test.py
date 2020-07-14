@@ -1,3 +1,0 @@
-from mainfunctions import *
-
-getBalance()
