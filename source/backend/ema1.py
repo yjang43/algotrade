@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import random
 from time import sleep
-import mainfunctions
+import MainFunctions
 
 exchange = ccxt.binance()
 
@@ -39,15 +39,15 @@ class emaSession(Session):
                 buyamount = (1/2) * self.totalcash
                 exchange.createMarketBuyOrder(currency, buyamount) #no gurantee that this succeeds
                 #once bought, subtract the amount from balance
-                if(success, retrieve transaction history and make according changes to balance):
-                    self.totalcash -= usedcash
-                    self.totalcoin += buyamount
-                print("BUY")
+                # if(success, retrieve transaction history and make according changes to balance):
+                #     self.totalcash -= usedcash
+                #     self.totalcoin += buyamount
+                # print("BUY")
             elif(checkresult[1]):
                 #SELL
                 sellamount = (1/2)* self.totalcoin 
                 self.totalcoin -= sellamount
-                self.totalcash += 
+                # self.totalcash += 
                 exchange.createMarketSellOrder(currency, sellamount)
                 print("SELL")
             else:

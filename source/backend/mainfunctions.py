@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
-from emaSession import emaSession
+from EmaSession import EmaSession
 #import ema
+from Queue import Queue
 from threading import Timer
 
 
@@ -32,13 +33,6 @@ coinsinusd = []
 percentagechange = []
 sessions = []
 
-# class Session:
-#     elapsedTime = 0
-#     total = 0
-#     totalcoin = 0
-#     totalcash = 0
-#     totalprofit = 0
-#     currency = ""
 
 
 def setkey(apikey, secretkey):
@@ -110,11 +104,23 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
+buyQueue = Queue() # a queue of tuples
+sellQueue = Queue()
 
-x = emaSession(1, "session-1", 2, exchange)
-y = emaSession(2, "session-2", 3, exchange)
+x = EmaSession(1, "session-1", exchange, buyQueue, sellQueue)
+y = EmaSession(2, "session-2", exchange, buyQueue, sellQueue)
 x.start()
 y.start()
+
+
+if(True): #clock signal
+    while not buyQueue.isEmpty():
+        val = buyQueue.dequeue()
+        exchange.createMarketBuyOrder(val[0], val[1])
+    while not sellQueue.isEmpty():
+        val = sellQueue.dequeue()
+        exchange.createMarketSellOrder(val[0], val[1])
+
 
 
 

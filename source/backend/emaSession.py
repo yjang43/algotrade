@@ -6,11 +6,10 @@ import pandas as pd
 
 class Session(threading.Thread):
 
-  def __init__(self, threadID, name, counter):
+  def __init__(self, threadID, name):
     threading.Thread.__init__(self)
     self.threadID = threadID
     self.name = name
-    self.counter = counter
     self.elapsedTime = 0
     self.total = 0
     self.totalcoin = 0
@@ -19,11 +18,13 @@ class Session(threading.Thread):
     self.currency = ""
     self.exitFlag = 0
 
-class emaSession(Session):
+class EmaSession(Session):
 
-  def __init__(self, threadID, name, counter, exchange, amount = 10, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
-    Session.__init__(self, threadID, name, counter)
+  def __init__(self, threadID, name, exchange, buyQueue, sellQueue, amount = 10, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
+    Session.__init__(self, threadID, name)
     self.exchange = exchange
+    self.buyQueue = buyQueue
+    self.sellQueue = sellQueue
     self.amount = amount
     self.currency = currency
     self.shortterm = shortterm
@@ -49,9 +50,9 @@ class emaSession(Session):
       if(True):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
-          exchange.createMarketBuyOrder(currency, buyamount) #no gurantee that this succeeds
           #once bought, subtract the amount from balance
-          time.sleep(10) #give time for transaction to happen
+          pair = (self.currency, buyamount)
+          self.buyQueue.enqueue(pair)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           #   self.totalcash -= mytrade.cost
@@ -60,7 +61,8 @@ class emaSession(Session):
       elif(checkresult[1]):
           #SELL
           sellamount = (1/2) * self.totalcoin
-          exchange.createMarketSellOrder(currency, sellamount)
+          pair = (self.currency, sellamount)
+          self.sellQueue.enqueue(pair)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           #   self.totalcoin -= mytrade.amount
@@ -74,7 +76,7 @@ class emaSession(Session):
 
   def emaFetch(self):
     dohlcvlist = self.exchange.fetch_ohlcv("BTC/USDT", '1d')
-    dfohlcv = pd.DataFrame.from_records(self.exchange.fetch_ohlcv("BTC/USDT", '1d')) #convert to dataframe
+    dfohlcv = pd.DataFrame.from_records(dohlcvlist) #convert to dataframe
     dfohlcv.columns = ['Time', 'Open', 'High', "Low", "Close", "Volume"]
     #print(dfohlcv)
     dfohlcv['Time'] = pd.to_datetime(dfohlcv['Time'], unit='ms') #convert time to ms
