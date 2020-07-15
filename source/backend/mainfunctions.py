@@ -104,23 +104,19 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
-buyQueue = Queue() # a queue of tuples
-sellQueue = Queue()
+orderQueue = Queue() # a queue of dictionary
 
-x = EmaSession(1, "session-1", exchange, buyQueue, sellQueue)
-y = EmaSession(2, "session-2", exchange, buyQueue, sellQueue)
+x = EmaSession(1, "session-1", exchange, orderQueue)
+y = EmaSession(2, "session-2", exchange, orderQueue)
 x.start()
 y.start()
 
 
-if(True): #clock signal
-    while not buyQueue.isEmpty():
-        val = buyQueue.dequeue()
-        exchange.createMarketBuyOrder(val[0], val[1])
-    while not sellQueue.isEmpty():
-        val = sellQueue.dequeue()
-        exchange.createMarketSellOrder(val[0], val[1])
-
+#take dictionary values from dictionary and make according buy or sell
+# if(True): #clock signal
+#     while not orderQueue.isEmpty():
+#         val = orderQueue.dequeue()
+        
 
 
 

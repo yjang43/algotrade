@@ -20,11 +20,10 @@ class Session(threading.Thread):
 
 class EmaSession(Session):
 
-  def __init__(self, threadID, name, exchange, buyQueue, sellQueue, amount = 10, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
+  def __init__(self, threadID, name, exchange, orderQueue, amount = 10, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
     Session.__init__(self, threadID, name)
     self.exchange = exchange
-    self.buyQueue = buyQueue
-    self.sellQueue = sellQueue
+    self.orderQueue = orderQueue
     self.amount = amount
     self.currency = currency
     self.shortterm = shortterm
@@ -47,12 +46,16 @@ class EmaSession(Session):
     #buy in
     while True : 
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
-      if(True):
+      if(checkresult[0]):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
           #once bought, subtract the amount from balance
-          pair = (self.currency, buyamount)
-          self.buyQueue.enqueue(pair)
+          pair1 = {
+            "side" : "buy",
+            "currency" : self.currency,
+            "buyamount" : buyamount
+          }
+          self.orderQueue.enqueue(pair1)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           #   self.totalcash -= mytrade.cost
@@ -61,8 +64,12 @@ class EmaSession(Session):
       elif(checkresult[1]):
           #SELL
           sellamount = (1/2) * self.totalcoin
-          pair = (self.currency, sellamount)
-          self.sellQueue.enqueue(pair)
+          pair2 = {
+            "side" : "sell",
+            "currency" : self.currency,
+            "buyamount" : sellamount
+          }
+          self.orderQueue.enqueue(pair2)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           #   self.totalcoin -= mytrade.amount
