@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import random
 from EmaSession import EmaSession
-#import ema
-from Queue import Queue
 from threading import Timer
+import Queue
+
 
 
 exchange = ccxt.binance()
@@ -104,7 +104,7 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
-orderQueue = Queue() # a queue of dictionary
+orderQueue = Queue.Queue() # a queue of dictionary
 
 x = EmaSession(1, "session-1", exchange, orderQueue)
 y = EmaSession(2, "session-2", exchange, orderQueue)
@@ -114,7 +114,7 @@ y.start()
 
 #take dictionary values from dictionary and make according buy or sell
 # if(True): #clock signal
-#     while not orderQueue.isEmpty():
+#     while not orderQueue.empty():
 #         val = orderQueue.dequeue()
         
 

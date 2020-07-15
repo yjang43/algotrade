@@ -2,7 +2,6 @@ import ccxt
 import threading
 import time
 import pandas as pd
-#import mainfunctions as mf
 
 class Session(threading.Thread):
 
