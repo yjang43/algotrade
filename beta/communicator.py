@@ -2,18 +2,12 @@ import threading
 import time
 
 import ccxt
-# time lock for every period
-# clock synchronization
-# communicator name
-# https://en.wikipedia.org/wiki/Communicator_(Star_Trek)
-# can use join to hold the update threads to do the update
-# if you retrieved everything from the server, then joined thread terminates,
 
 
 class Communicator(threading.Thread):
     exchange = ccxt.binance()
-    exchange.apiKey = ""
-    exchange.secret = ""
+    exchange.apiKey = "nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13"
+    exchange.secret = "0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1"
 
     def __init__(self):
         super().__init__()
@@ -67,7 +61,11 @@ class APIFeeder(threading.Thread):
             balance_data = exchange.fetch_balance()
             coins_owned = [coin for coin in balance_data['total'] if balance_data['total'][coin] != 0.0]
             balance = {coin: balance_data[coin] for coin in coins_owned}
+            order = exchange.fetch_orders(symbol='BTC/USDT')
+            trades = exchange.fetch_my_trades(symbol='BTC/USDT')
+            # print(order)
             print(balance)
+            # print(trades)
         except ccxt.errors.AuthenticationError as e:
             print(f"The operation requires public and private key")
         except AttributeError as e:
