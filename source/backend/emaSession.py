@@ -9,7 +9,7 @@ class Session(threading.Thread):
     threading.Thread.__init__(self)
     self.threadID = threadID
     self.name = name
-    self.elapsedTime = 0
+    self.counter = 0
     self.total = 0
     self.totalcoin = 0
     self.totalcash = 0
@@ -19,15 +19,18 @@ class Session(threading.Thread):
 
 class EmaSession(Session):
 
-  def __init__(self, threadID, name, exchange, orderQueue, amount = 10, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
+  def __init__(self, threadID, name, exchange, orderQueue, initialInvestment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
     Session.__init__(self, threadID, name)
     self.exchange = exchange
     self.orderQueue = orderQueue
-    self.amount = amount
+    self.initialInvestment = initialInvestment
     self.currency = currency
     self.shortterm = shortterm
     self.mediumterm = mediumterm
     self.longterm = longterm
+
+    self.total = initialInvestment
+    self.totalcash = initialInvestment
 
   def run(self):
     print("Starting " + self.name)
@@ -44,8 +47,9 @@ class EmaSession(Session):
     #execute respective session
     #buy in
     while True : 
+      print("counter : " , self.counter)
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
-      if(checkresult[0]):
+      if(True):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
           #once bought, subtract the amount from balance
@@ -54,11 +58,11 @@ class EmaSession(Session):
             "currency" : self.currency,
             "buyamount" : buyamount
           }
-          self.orderQueue.enqueue(pair1)
+          self.orderQueue.put(pair1)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
-          #   self.totalcash -= mytrade.cost
-          #   self.totalcoin += mytrade.amount
+          # self.totalcash -= mytrade.cost
+          # self.totalcoin += mytrade.amount
           print("BUY")
       elif(checkresult[1]):
           #SELL
@@ -68,17 +72,20 @@ class EmaSession(Session):
             "currency" : self.currency,
             "buyamount" : sellamount
           }
-          self.orderQueue.enqueue(pair2)
+          self.orderQueue.put(pair2)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
-          #   self.totalcoin -= mytrade.amount
-          #   self.totalcash += mytrade.cost
+          # self.totalcoin -= mytrade.amount
+          # self.totalcash += mytrade.cost
           print("SELL")
       else:
          print("PASS")
+      print("total : ", self.total)
+      print("total cash : ", self.totalcash)
+      print("total coin : ", self.totalcoin)
+      print("total profit : ", self.totalprofit)
       time.sleep(10) #check every 10 seconds
-      self.elapsedTime = self.elapsedTime + 1
-      print("counter : " , self.elapsedTime)
+      self.counter = self.counter + 1
 
   def emaFetch(self):
     dohlcvlist = self.exchange.fetch_ohlcv("BTC/USDT", '1d')

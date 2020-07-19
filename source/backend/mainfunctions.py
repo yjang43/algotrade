@@ -7,7 +7,7 @@ import pandas as pd
 import random
 from EmaSession import EmaSession
 from threading import Timer
-import Queue
+import queue
 
 
 
@@ -104,7 +104,7 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
-orderQueue = Queue.Queue() # a queue of dictionary
+orderQueue = queue.Queue() # a queue of dictionary
 
 x = EmaSession(1, "session-1", exchange, orderQueue)
 y = EmaSession(2, "session-2", exchange, orderQueue)
