@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import random
 from threading import Timer
-from algorithm import ema
-from algorithm import arima
 
 #hello
 #Classes  :
@@ -319,7 +317,7 @@ print("//////////////////////////////////////")
 print("starting...")
 ohlcvsave()
 #ema.emaalgorithm()
-arima.ARIMAalgorithm()
+#arima.ARIMAalgorithm()
 
 
 #rt = RepeatedTimer(60, test) # it auto-starts, no need of rt.start(), CHECK EVERY MINUTE

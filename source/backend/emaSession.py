@@ -5,9 +5,9 @@ import pandas as pd
 
 class Session(threading.Thread):
 
-  def __init__(self, threadID, name):
+  def __init__(self, sessionID, name):
     threading.Thread.__init__(self)
-    self.threadID = threadID
+    self.sessionID = sessionID
     self.name = name
     self.counter = 0
     self.total = 0
@@ -19,8 +19,8 @@ class Session(threading.Thread):
 
 class EmaSession(Session):
 
-  def __init__(self, threadID, name, exchange, orderQueue, initialInvestment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
-    Session.__init__(self, threadID, name)
+  def __init__(self, sessionID, name, exchange, orderQueue, initialInvestment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
+    Session.__init__(self, sessionID, name)
     self.exchange = exchange
     self.orderQueue = orderQueue
     self.initialInvestment = initialInvestment
@@ -33,10 +33,10 @@ class EmaSession(Session):
     self.totalcash = initialInvestment
 
   def run(self):
-    print("Starting " + self.name)
+    print("Starting ", self.sessionID)
     #run algorithm that checks ema every 10seconds
     self.execute()
-    print("Exiting " + self.name)
+    print("Exiting ", self.sessionID)
 
   def changeTerms(self, shortterm, mediumterm, longterm):
     self.shortterm = shortterm
@@ -49,11 +49,12 @@ class EmaSession(Session):
     while True : 
       print("counter : " , self.counter)
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
-      if(True):
+      if(checkresult[0]):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
           #once bought, subtract the amount from balance
           pair1 = {
+            "sessionID" : self.sessionID,
             "side" : "buy",
             "currency" : self.currency,
             "buyamount" : buyamount
@@ -68,6 +69,7 @@ class EmaSession(Session):
           #SELL
           sellamount = (1/2) * self.totalcoin
           pair2 = {
+            "sessionID" : self.sessionID,
             "side" : "sell",
             "currency" : self.currency,
             "buyamount" : sellamount

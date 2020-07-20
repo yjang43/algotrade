@@ -111,6 +111,10 @@ y = EmaSession(2, "session-2", exchange, orderQueue)
 x.start()
 y.start()
 
+# print(exchange.fetch_my_trades("VET/USDT"))
+print("///////")
+# print(exchange.fetch_order(210442184, "VET/USDT"))
+# exchange.create_market_sell_order("VET/USDT", 1000, {'newClientOrderId': 'World'})
 
 #take dictionary values from dictionary and make according buy or sell
 # if(True): #clock signal
