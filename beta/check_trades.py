@@ -46,7 +46,7 @@ def get_since():
 
 # pprint(exchange.fees)
 
-print("TRADES")
-pprint(exchange.fetch_my_trades('VET/USDT'))
-print("ORDER")
-pprint(exchange.fetch_order('207962552', symbol='VET/USDT'))
+# print("TRADES")
+# pprint(exchange.fetch_my_trades('VET/USDT'))
+# print("ORDER")
+# pprint(exchange.fetch_order('207962552', symbol='VET/USDT'))
