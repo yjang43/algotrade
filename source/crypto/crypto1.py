@@ -130,6 +130,6 @@ class Crypto:
         dftradessell = dftrades[issell]
         return dftradessell
 
-    def buy():
-    def sell():
+    # def buy():
+    # def sell():
 

@@ -7,7 +7,7 @@ import pandas as pd
 import random
 from EmaSession import EmaSession
 from threading import Timer
-import Queue
+import queue
 
 
 
@@ -104,13 +104,17 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
-orderQueue = Queue.Queue() # a queue of dictionary
+orderQueue = queue.Queue() # a queue of dictionary
 
 x = EmaSession(1, "session-1", exchange, orderQueue)
 y = EmaSession(2, "session-2", exchange, orderQueue)
 x.start()
 y.start()
 
+# print(exchange.fetch_my_trades("VET/USDT"))
+print("///////")
+# print(exchange.fetch_order(210442184, "VET/USDT"))
+# exchange.create_market_sell_order("VET/USDT", 1000, {'newClientOrderId': 'World'})
 
 #take dictionary values from dictionary and make according buy or sell
 # if(True): #clock signal
