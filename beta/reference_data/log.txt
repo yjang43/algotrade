@@ -1,0 +1,12 @@
+{'BCX': {'free': 0.0091, 'total': 0.0091, 'used': 0.0},
+ 'BTC': {'free': 0.00500422, 'total': 0.00500422, 'used': 0.0},
+ 'ETH': {'free': 0.10195974, 'total': 0.10195974, 'used': 0.0},
+ 'ICX': {'free': 61.30271, 'total': 61.30271, 'used': 0.0},
+ 'REQ': {'free': 1635.033, 'total': 1635.033, 'used': 0.0},
+ 'SALT': {'free': 0.00806, 'total': 0.00806, 'used': 0.0},
+ 'SBTC': {'free': 9.1e-07, 'total': 9.1e-07, 'used': 0.0},
+ 'USDT': {'free': 18.46152, 'total': 18.46152, 'used': 0.0},
+ 'VET': {'free': 8090.9, 'total': 8090.9, 'used': 0.0},
+ 'VTHO': {'free': 2813.6291218, 'total': 2813.6291218, 'used': 0.0},
+ 'WABI': {'free': 0.894, 'total': 0.894, 'used': 0.0},
+ 'WTC': {'free': 0.968, 'total': 0.968, 'used': 0.0}}
