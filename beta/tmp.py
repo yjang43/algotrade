@@ -8,7 +8,7 @@ order = (
     'demo_session',
     {
         'symbol': 'VET/USDT',
-        'side': 'buy',
+        'side': 'sell',
         'amount': 1000
     }
 )
