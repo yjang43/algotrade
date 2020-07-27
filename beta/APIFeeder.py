@@ -18,7 +18,7 @@ class APIFeeder(threading.Thread):
 
     def run(self):
         # clear up the internal flag of the Event
-        # self.order_from_queue()
+        self.order_from_queue()
         self.fetch_trade('VET/USDT')
 
         print("alarm is clear now")
@@ -45,8 +45,9 @@ class APIFeeder(threading.Thread):
             self.caller.since[symbol] = self.caller.since['default']
 
         # TODO: uncomment next line this and delete a line below
-        # trades = self.caller.exchange.fetch_my_trades(symbol=symbol, since=self.caller.since[symbol])
-        trades = self.caller.exchange.fetch_my_trades(symbol=symbol)
+        trades = self.caller.exchange.fetch_my_trades(symbol=symbol, since=self.caller.since[symbol])
+        # trades = self.caller.exchange.fetch_my_trades(symbol=symbol)
+        print(f'TRADE TEST: \n {trades}')
 
         if trades:
             self._update_since(trades[-1], symbol)  # last trade is an end element of trades
@@ -65,8 +66,8 @@ class APIFeeder(threading.Thread):
             session_id: string,
             order_structure: {
                 symbol: string, # market symbol
-                side, string,   # buy/sell
-                amount, float
+                side: string,   # buy/sell
+                amount: float
             }
         }
         """
@@ -84,6 +85,11 @@ class APIFeeder(threading.Thread):
                     # save session_id and order id pair
                     self.caller.order_track.append({order_return['id']: session_id})
                     queue_length -= 1
+                    print(f"ORDER RESULT:\n"
+                          f"session id: {session_id}"
+                          f"order info: {order_info}"
+                          f"order track: {self.caller.order_track}"
+                          f"order return: {order_return}")
         except HTTPError:
             # an error was caused when there is so little money traded
             print("Due to a limit that was set by the exchange,"

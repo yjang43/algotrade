@@ -6,6 +6,7 @@ import ccxt
 
 from beta.APIFeeder import APIFeeder
 from beta.clock import Clock
+from beta.tmp import order_queue
 
 
 class Communicator(threading.Thread):
@@ -36,6 +37,7 @@ class Communicator(threading.Thread):
                 print(f"communicator count is {self.count}")
             print("alarm alarm!")
             api_feeder = APIFeeder()
+            api_feeder.set_queue(order_queue)
             api_feeder.start()
             print(f"since value right now is: {self.since}")
             # # need to set it as join for now
