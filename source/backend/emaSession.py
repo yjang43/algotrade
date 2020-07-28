@@ -5,9 +5,9 @@ import pandas as pd
 
 class Session(threading.Thread):
 
-  def __init__(self, sessionID, name):
+  def __init__(self, session_id, name):
     threading.Thread.__init__(self)
-    self.sessionID = sessionID
+    self.session_id = session_id
     self.name = name
     self.counter = 0
     self.total = 0
@@ -19,24 +19,24 @@ class Session(threading.Thread):
 
 class EmaSession(Session):
 
-  def __init__(self, sessionID, name, exchange, orderQueue, initialInvestment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
-    Session.__init__(self, sessionID, name)
+  def __init__(self, session_id, name, exchange, order_queue, initial_investment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
+    Session.__init__(self, session_id, name)
     self.exchange = exchange
-    self.orderQueue = orderQueue
-    self.initialInvestment = initialInvestment
+    self.order_queue = order_queue
+    self.initial_investment = initial_investment
     self.currency = currency
     self.shortterm = shortterm
     self.mediumterm = mediumterm
     self.longterm = longterm
 
-    self.total = initialInvestment
-    self.totalcash = initialInvestment
+    self.total = initial_investment
+    self.totalcash = initial_investment
 
   def run(self):
-    print("Starting ", self.sessionID)
+    print("Starting ", self.session_id)
     #run algorithm that checks ema every 10seconds
     self.execute()
-    print("Exiting ", self.sessionID)
+    print("Exiting ", self.session_id)
 
   def changeTerms(self, shortterm, mediumterm, longterm):
     self.shortterm = shortterm
@@ -47,21 +47,21 @@ class EmaSession(Session):
     #execute respective session
     #buy in
     while True : 
-      print("Session ID : ", self.sessionID, " counter : " , self.counter)
+      print("Session ID : ", self.session_id, " counter : " , self.counter)
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
       if(checkresult[0]):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
           #once bought, subtract the amount from balance
           buyorder = {
-            "sessionID" : self.sessionID,
+            "session_id" : self.session_id,
             "order_structure": {
               "symbol": self.currency, # market symbol
               "side": "buy",   # buy/sell
               "amount": buyamount
             }
           } 
-          self.orderQueue.put(buyorder)
+          self.order_queue.put(buyorder)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           # self.totalcash -= mytrade.cost
@@ -71,14 +71,14 @@ class EmaSession(Session):
           #SELL
           sellamount = (1/2) * self.totalcoin
           sellorder = {
-            "sessionID" : self.sessionID,
+            "session_id" : self.session_id,
             "order_structure": {
               "symbol": self.currency, # market symbol
               "side": "sell",   # buy/sell
               "amount": sellamount
             }
           }
-          self.orderQueue.put(sellorder)
+          self.order_queue.put(sellorder)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           # self.totalcoin -= mytrade.amount
@@ -140,4 +140,24 @@ class EmaSession(Session):
        pass
 
     return buysignal,sellsignal
+
+  def trade_update(self, trade_structure):
+    #calcProfit()
+
+    if(trade_structure.session_id != self.session_id):
+      print("wrong match")
+    else:
+      if(trade_structure.side == "buy"):
+        self.totalcoin += trade_structure.amount * trade_structure.price
+        self.totalcash -= trade_structure.amount
+      elif(trade_structure.side == "sell"):
+        self.totalcoin -= trade_structure.amount * trade_structure.price
+        self.totalcash += trade_structure.amount
+    print("Updated balance")
+
+  #calc current balance and
+  # def calc_profit():
+  
+  #fetch current price and calculate current valuation of total
+  # def update_balance():
 
