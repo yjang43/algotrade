@@ -30,11 +30,12 @@ class APIFeeder(threading.Thread):
             self.caller.since[symbol] = self.caller.since['default']
 
         trades = self.caller.exchange.fetch_my_trades(symbol=symbol, since=self.caller.since[symbol])
-        print(f'TRADE TEST: \n {trades}')
+        print(f'TRADE TEST')
+        pprint(trades)
 
         if trades:
             self._update_since(trades[-1], symbol)  # last trade is an end element of trades
-            self._send_trade_notice(trades)
+            self._send_trade_notice(trades, symbol)
 
     def _update_since(self, last_trade, symbol):
         # logic here is check the last trade, find timestamp and find since +1 from it
