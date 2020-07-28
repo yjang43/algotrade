@@ -144,7 +144,7 @@ class EmaSession(Session):
   def trade_update(self, trade_structure):
     #calcProfit()
 
-    if(trade_structure.session_id != self.session_id):
+    if(int(trade_structure.session_id) != self.session_id):
       print("wrong match")
     else:
       if(trade_structure.side == "buy"):
