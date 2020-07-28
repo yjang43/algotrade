@@ -47,19 +47,21 @@ class EmaSession(Session):
     #execute respective session
     #buy in
     while True : 
-      print("counter : " , self.counter)
+      print("Session ID : ", self.sessionID, " counter : " , self.counter)
       checkresult = self.emacheck(self.shortterm, self.mediumterm, self.longterm)
       if(checkresult[0]):
           #BUY, account for price slippage
           buyamount = (1/2) * self.totalcash
           #once bought, subtract the amount from balance
-          pair1 = {
+          buyorder = {
             "sessionID" : self.sessionID,
-            "side" : "buy",
-            "currency" : self.currency,
-            "buyamount" : buyamount
-          }
-          self.orderQueue.put(pair1)
+            "order_structure": {
+              "symbol": self.currency, # market symbol
+              "side": "buy",   # buy/sell
+              "amount": buyamount
+            }
+          } 
+          self.orderQueue.put(buyorder)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           # self.totalcash -= mytrade.cost
@@ -68,13 +70,15 @@ class EmaSession(Session):
       elif(checkresult[1]):
           #SELL
           sellamount = (1/2) * self.totalcoin
-          pair2 = {
+          sellorder = {
             "sessionID" : self.sessionID,
-            "side" : "sell",
-            "currency" : self.currency,
-            "buyamount" : sellamount
+            "order_structure": {
+              "symbol": self.currency, # market symbol
+              "side": "sell",   # buy/sell
+              "amount": sellamount
+            }
           }
-          self.orderQueue.put(pair2)
+          self.orderQueue.put(sellorder)
           # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
           # if(success, retrieve transaction history and make according changes to balance):
           # self.totalcoin -= mytrade.amount

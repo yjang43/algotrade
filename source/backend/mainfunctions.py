@@ -104,12 +104,23 @@ def getBalance():
     print("//////////////////////////////////////")
     return(dfcoinsowned) #returns dataframe
 
-orderQueue = queue.Queue() # a queue of dictionary
+#initialize variables
+sessionID = 1
+currentSession = {}
+orderQueue = queue.Queue() # a queue of dictionary for storing orders 
 
-x = EmaSession(1, "session-1", exchange, orderQueue)
-y = EmaSession(2, "session-2", exchange, orderQueue)
-x.start()
-y.start()
+x = EmaSession(sessionID, "session-1", exchange, orderQueue)
+currentSession.update({sessionID : x})
+sessionID+=1
+
+y = EmaSession(sessionID, "session-2", exchange, orderQueue)
+currentSession.update({sessionID : y})
+sessionID+=1
+
+#loop through currentSession dictionary and start each thread
+for i in currentSession.values():
+    i.start()
+
 
 # print(exchange.fetch_my_trades("VET/USDT"))
 print("///////")
