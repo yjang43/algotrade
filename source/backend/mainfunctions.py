@@ -112,11 +112,11 @@ order_queue = queue.Queue() # a queue of dictionary for storing orders
 x = EmaSession(str(session_id), "session-1", exchange, order_queue)
 # print(x.get_ident())
 # print(x.get_native_id())
-current_session.update({str(session_id) : x})
+current_session[str(session_id)] = x
 session_id+=1
 
 y = EmaSession(str(session_id), "session-2", exchange, order_queue)
-current_session.update({str(session_id) : y})
+current_session[str(session_id)] = y
 session_id+=1
 
 #loop through currentSession dictionary and start each thread

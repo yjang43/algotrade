@@ -17,6 +17,20 @@ class Session(threading.Thread):
     self.currency = ""
     self.exitFlag = 0
 
+  def trade_update(self, trade_structure):
+    #calcProfit()
+
+    if(int(trade_structure.session_id) != self.session_id):
+      print("wrong match")
+    else:
+      if(trade_structure.side == "buy"):
+        self.totalcoin += trade_structure.amount * trade_structure.price
+        self.totalcash -= trade_structure.amount
+      elif(trade_structure.side == "sell"):
+        self.totalcoin -= trade_structure.amount * trade_structure.price
+        self.totalcash += trade_structure.amount
+    print("Updated balance")
+
 class EmaSession(Session):
 
   def __init__(self, session_id, name, exchange, order_queue, initial_investment = 100, currency = "BTC/USDT", shortterm = 5, mediumterm = 10, longterm = 20):
@@ -141,19 +155,7 @@ class EmaSession(Session):
 
     return buysignal,sellsignal
 
-  def trade_update(self, trade_structure):
-    #calcProfit()
-
-    if(int(trade_structure.session_id) != self.session_id):
-      print("wrong match")
-    else:
-      if(trade_structure.side == "buy"):
-        self.totalcoin += trade_structure.amount * trade_structure.price
-        self.totalcash -= trade_structure.amount
-      elif(trade_structure.side == "sell"):
-        self.totalcoin -= trade_structure.amount * trade_structure.price
-        self.totalcash += trade_structure.amount
-    print("Updated balance")
+  
 
   #calc current balance and
   # def calc_profit():
