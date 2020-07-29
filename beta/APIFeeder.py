@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 import queue
 from requests import HTTPError
 from pprint import pprint
-from beta.tmp import session_container
 
 if TYPE_CHECKING:
     from beta.communicator import Communicator
@@ -15,7 +14,7 @@ class APIFeeder(threading.Thread):
         super().__init__()
         self.caller: Communicator = threading.current_thread()
         self.caller.alarm.clear()
-        self.queue: queue.Queue = None
+        self.queue = None
         self.session_container = None
 
     def run(self):
@@ -78,7 +77,7 @@ class APIFeeder(threading.Thread):
             # TODO: Find the corresponding session and call function to update balance
             #       We need to integrate session_container (or current_session) with APIFeeder
             # find session_id and update trade accordingly
-            session_container[session_id].trade_update(trade_structure)
+            self.session_container[session_id].trade_update(trade_structure)
 
     def order_from_queue(self):
         if not self.queue:
