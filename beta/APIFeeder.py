@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import queue
 from requests import HTTPError
 from pprint import pprint
+from beta.tmp import session_container
 
 if TYPE_CHECKING:
     from beta.communicator import Communicator
@@ -54,8 +55,6 @@ class APIFeeder(threading.Thread):
             order_id = trade['order']
             order = self.caller.exchange.fetch_order(order_id, symbol)  # binance addtionally requires symbol parameter
             session_id = order['clientOrderId']
-            # TODO: Find the corresponding session and call function to update balance
-            #       We need to integrate session_container (or current_session) with APIFeeder
             """required trade structure
             {
                 session_id: string,
@@ -76,7 +75,10 @@ class APIFeeder(threading.Thread):
             }
             pprint(trade_structure)
 
-        pass
+            # TODO: Find the corresponding session and call function to update balance
+            #       We need to integrate session_container (or current_session) with APIFeeder
+            # find session_id and update trade accordingly
+            session_container[session_id].trade_update(trade_structure)
 
     def order_from_queue(self):
         if not self.queue:

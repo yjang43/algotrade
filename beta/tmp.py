@@ -22,3 +22,8 @@ order1 = {
 }
 order_queue.put(order0)
 order_queue.put(order1)
+
+
+"""structure
+{string: Session}"""
+session_container = {}
