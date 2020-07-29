@@ -20,11 +20,18 @@ class APIFeeder(threading.Thread):
     def run(self):
         # clear up the internal flag of the Event
         self.order_from_queue()
-        self.fetch_trade('VET/USDT')
+        # self.fetch_trades_with_symbol('VET/USDT')
+        self.fetch_trades()
 
         print("alarm is clear now")
 
-    def fetch_trade(self, symbol: str):
+    def fetch_trades(self):
+        print("HERE FETCH OCCURS")
+        print("symbol tracker:", self.caller.symbol_tracker)
+        for symbol in self.caller.symbol_tracker:
+            self.fetch_trades_with_symbol(symbol)
+
+    def fetch_trades_with_symbol(self, symbol: str):
         # update since value when fetching trade is done
         if symbol not in self.caller.since:     # set since
             self.caller.since[symbol] = self.caller.since['default']
@@ -97,8 +104,9 @@ class APIFeeder(threading.Thread):
                     order = self.queue.get()
                     session_id = order['session_id']
                     order_info = order['order_info']
-                    self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
-                                                      order_info['amount'], {'clientOrderId': session_id})
+                    # self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
+                    #                                   order_info['amount'], {'clientOrderId': session_id})
+                    self.add_symbol_to_tracker(order_info['symbol'])
                 queue_length -= 1
         except HTTPError:
             # an error was caused when there is so little money traded
@@ -117,6 +125,12 @@ class APIFeeder(threading.Thread):
 
     def set_session_container(self, session_container):
         self.session_container = session_container
+
+    def add_symbol_to_tracker(self, symbol):
+        self.caller.symbol_tracker.add(symbol)
+
+    def remove_symbol_from_tracker(self, symbol):
+        self.caller.symbol_tracker.remove(symbol)
 
 
 class QueueNotSet(Exception):

@@ -25,7 +25,7 @@ class Communicator(threading.Thread):
         self.alarm = threading.Event()
         self.since = {'default': int(datetime.now().timestamp() * 1000)}    # since for each symbol
 
-        self.order_track = []
+        self.symbol_tracker = set()
 
     def run(self):
         while self.is_program_running:

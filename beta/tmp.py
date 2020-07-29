@@ -4,7 +4,7 @@
 import queue
 
 order_queue = queue.Queue()
-order = {
+order0 = {
     'session_id': 'demo_session',
     'order_info': {
         'symbol': 'VET/USDT',
@@ -12,4 +12,13 @@ order = {
         'amount': 1000
     }
 }
-order_queue.put(order)
+order1 = {
+    'session_id': 'demo_session',
+    'order_info': {
+        'symbol': 'NULS/USDT',
+        'side': 'sell',
+        'amount': 1000
+    }
+}
+order_queue.put(order0)
+order_queue.put(order1)
