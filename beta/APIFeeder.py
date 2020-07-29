@@ -20,7 +20,6 @@ class APIFeeder(threading.Thread):
     def run(self):
         # clear up the internal flag of the Event
         self.order_from_queue()
-        # self.fetch_trades_with_symbol('VET/USDT')
         self.fetch_trades()
 
         print("alarm is clear now")
@@ -104,8 +103,8 @@ class APIFeeder(threading.Thread):
                     order = self.queue.get()
                     session_id = order['session_id']
                     order_info = order['order_info']
-                    # self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
-                    #                                   order_info['amount'], {'clientOrderId': session_id})
+                    self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
+                                                      order_info['amount'], {'clientOrderId': session_id})
                     self.add_symbol_to_tracker(order_info['symbol'])
                 queue_length -= 1
         except HTTPError:
