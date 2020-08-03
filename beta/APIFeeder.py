@@ -92,10 +92,6 @@ class APIFeeder(threading.Thread):
             }
         }
         """
-        # TODO:
-        #   just in case the order gets accepted continuously,
-        #   if each order takes long because of traffic, then it can cause double order
-        #   need another data structure that move queued data to
         queue_length = self.queue.qsize()
         try:
             while queue_length:
