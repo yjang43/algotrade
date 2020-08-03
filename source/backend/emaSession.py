@@ -124,8 +124,4 @@ class EmaSession(Session.Session):
 
         return buysignal, sellsignal
 
-    # calc current balance and
-    # def calc_profit():
-
-    # fetch current price and calculate current valuation of total
-    # def update_balance():
+    

@@ -35,3 +35,9 @@ class Session(threading.Thread):
                 self.totalcoin -= trade_structure.amount * trade_structure.price
                 self.totalcash += trade_structure.amount
         print("Updated balance")
+
+    # calc current balance and
+    # def calc_profit():
+
+    # fetch current price and calculate current valuation of total
+    # def update_balance():
