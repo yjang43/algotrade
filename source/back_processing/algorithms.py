@@ -1,3 +1,4 @@
+# Deprecated file
 
 from PyQt5.QtCore import *
 import ccxt
