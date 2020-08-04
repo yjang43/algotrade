@@ -27,6 +27,8 @@ class APIFeeder(threading.Thread):
     def fetch_trades(self):
         print("HERE FETCH OCCURS")
         print("symbol tracker:", self.caller.symbol_tracker)
+        # TODO: optimization needed
+        #       delete unnecessary symbols when the trade is done
         for symbol in self.caller.symbol_tracker:
             self.fetch_trades_with_symbol(symbol)
 
