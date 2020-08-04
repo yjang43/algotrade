@@ -4,7 +4,6 @@ import ccxt
 import time
 
 from source.account_management.my_exchange import Account
-from tmp_do_not_add import apiKey, secret
 
 
 class LoginDialog(QDialog):
@@ -31,8 +30,6 @@ class LoginDialog(QDialog):
         # for develop purpose I bring keys from "tmp_do_not_add.py"
         public_key = self.loginID.toPlainText()
         private_key = self.loginPW.toPlainText()
-        public_key = apiKey
-        private_key = secret
         # exchange = ccxt.binance()
         # exchange.apiKey = public_key
         # exchange.secret = private_key

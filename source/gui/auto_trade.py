@@ -2,6 +2,7 @@
 from source.gui.pages import *
 from source.back_processing.algorithm_wrapper import run_algorithm, emaalgorithm
 import source.back_processing.thread_control as thread_control
+from beta.backend_driver import BackendDriver
 
 
 class AutoTradePage(PageWidget):
@@ -32,7 +33,9 @@ class AutoTradePage(PageWidget):
         self.timer_status.start()
 
         # thread manager
+        # TODO: replace thread_manager with backend_driver
         self.thread_manager = thread_control.ThreadManager()
+        self.backend_driver = BackendDriver()
 
     def update_all_views(self):
         """
@@ -88,13 +91,13 @@ class AutoTradePage(PageWidget):
             :return: calls functions to update status
             """
             # receive input from user input
-            # it's just printing for now
             parameter = ema_option.get_parameters()
+            # this will be put in to Session info
             print(parameter)
-            # make proper algorithm function
             # self.current_algorithm = run_algorithm(self.algo_menu.currentText(), parameters=parameter,
             #                                        process_id=thread_control.BackgroundProcess.process_id_count + 1)
             self.current_algorithm = emaalgorithm
+            print(self.current_algorithm)
 
             # algorithm runs in the back
             algorithm_process = thread_control.BackgroundProcess(self.current_algorithm, parameter)
