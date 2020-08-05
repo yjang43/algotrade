@@ -1,3 +1,5 @@
+# Deprecated file
+
 from source.back_processing.algorithms import emaalgorithm
 from PyQt5.QtCore import *
 

@@ -1,3 +1,5 @@
+# Deprecated file
+
 from PyQt5.QtCore import *
 from typing import List, Dict
 import time
