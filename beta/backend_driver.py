@@ -22,8 +22,9 @@ class BackendDriver:
             # ...
         }
 
-    def start_session(self, session):
-        pass
+    @staticmethod
+    def start_session(session):
+        session.run()
 
     def remove_session(self):
         pass

@@ -91,19 +91,18 @@ class AutoTradePage(PageWidget):
             :return: calls functions to update status
             """
             # receive input from user input
-            parameter = ema_option.get_parameters()
-            # this will be put in to Session info
-            print(parameter)
-            # self.current_algorithm = run_algorithm(self.algo_menu.currentText(), parameters=parameter,
-            #                                        process_id=thread_control.BackgroundProcess.process_id_count + 1)
-            self.current_algorithm = emaalgorithm
+            parameters = ema_option.get_parameters()
+            print(parameters)
+            # TODO: delete this line when session option pane is adjusted properly
+            #       note that we need to create common session class and add with specific session options
+            parameters = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+            self.current_algorithm = self.algo_menu.currentText()   # this will set the current_algorithm string value
             print(self.current_algorithm)
 
             # algorithm runs in the back
-            algorithm_process = thread_control.BackgroundProcess(self.current_algorithm, parameter)
-            self.thread_manager.start_process(algorithm_process)
-            # self.algorithm = AlgoFunc(count)
-            # self.algorithm.run_algo()
+            algorithm_process = self.backend_driver.create_session(self.current_algorithm, parameters)
+            algorithm_process.run()
 
             # add session addition history to sessions
             df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
@@ -124,12 +123,12 @@ class AutoTradePage(PageWidget):
 
         # drop down menu for algorithm to use
         self.algo_menu = QComboBox()
-        self.algo_menu.addItem('ema/sma')
+        self.algo_menu.addItem('ema')
         self.algo_menu.addItem('granger causality')
         self.algo_menu.addItem('other algorithm')
         self.algo_menu.currentIndexChanged.connect(lambda: display_option(self.algo_menu.currentIndex(), input_section))  # signal
 
-        # stack widgets to show unique input page for each algorithm
+        # TODO: stack widgets to show unique input page for each algorithm
         input_section.setFixedSize(200, 200)
         # option pages
         ema_option = EmaOption()   # each option section will require its own class
