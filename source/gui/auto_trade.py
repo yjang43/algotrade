@@ -68,7 +68,6 @@ class AutoTradePage(PageWidget):
         self.panel3 = self.set_panel3()
         self.layout().insertWidget(2, self.panel3)
 
-
     def set_panel1(self):
         """
         sets widgets in panel1
@@ -91,11 +90,17 @@ class AutoTradePage(PageWidget):
             :return: calls functions to update status
             """
             # receive input from user input
-            parameters = ema_option.get_parameters()
-            print(parameters)
+            common_options = common_option.get_parameters()
+            algorithm_options = ema_option.get_parameters()
+            print('common options: ', common_option)
+            print('algorithm options: ', algorithm_options)
+            print(f"all: {common_options + algorithm_options}")
+            parameters = common_options + algorithm_options
+            common_option.reset_values()    # reset values
+            ema_option.reset_values()       # reset values
+
             # TODO: delete this line when session option pane is adjusted properly
             #       note that we need to create common session class and add with specific session options
-            parameters = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
             self.current_algorithm = self.algo_menu.currentText()   # this will set the current_algorithm string value
             print(self.current_algorithm)
@@ -128,9 +133,13 @@ class AutoTradePage(PageWidget):
         self.algo_menu.addItem('other algorithm')
         self.algo_menu.currentIndexChanged.connect(lambda: display_option(self.algo_menu.currentIndex(), input_section))  # signal
 
+        # section for common options for all algorithms
+        common_option = CommonOption()
+        common_option.setFixedSize(200, 100)
+
         # TODO: stack widgets to show unique input page for each algorithm
-        input_section.setFixedSize(200, 200)
         # option pages
+        input_section.setFixedSize(200, 200)
         ema_option = EmaOption()   # each option section will require its own class
         i = OptionSection()
         input_section.addWidget(ema_option)
@@ -144,6 +153,7 @@ class AutoTradePage(PageWidget):
 
         # add components
         panel.layout().addWidget(self.algo_menu)
+        panel.layout().addWidget(common_option)
         panel.layout().addWidget(input_section)
         panel.layout().addWidget(trade_btn)
 
@@ -246,8 +256,39 @@ class OptionSection(QWidget):
                     param = int(param)
                 else:
                     param = -1  # sentinel value
+            # TODO: figure out what todo for QCheckBox case
                 parameters.append(param)
         return parameters
+
+    def reset_values(self):
+        children = ([child for child in self.children()
+                     if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
+        for child in children:
+            if type(child) == QTextEdit:
+                child.setText("")
+
+
+class CommonOption(OptionSection):
+    """
+    Common option section for all algorithms.
+    It may include general options like market, investment money, and other things.
+    """
+    def __init__(self):
+        super().__init__()
+        self.create_options()
+
+    def create_options(self):
+        # options include initial_investment, currency.
+        # presumably session id and queue will be included in a different way.
+        investment_lb = QLabel("investment")
+        investment_val = QTextEdit()
+        market_lb = QLabel("market")
+        market_val = QTextEdit()
+
+        self.layout().addWidget(investment_lb, 0, 0)
+        self.layout().addWidget(investment_val, 0, 1)
+        self.layout().addWidget(market_lb, 1, 0)
+        self.layout().addWidget(market_val, 1, 1)
 
 
 class EmaOption(OptionSection):
@@ -256,20 +297,8 @@ class EmaOption(OptionSection):
     """
     def __init__(self):
         super().__init__()
-        # ema period
-        ema_day_lb = QLabel("investment")
-        ema_day_value = QTextEdit()
-        ema_day_value.setFixedHeight(30)
-        # risk high mid low
-        risk_lb = QLabel("risk")
-        risk_value = QTextEdit()
-        risk_value.setFixedHeight(30)
 
         # input
-        investment_lb = QLabel("investment")
-        investment_val = QTextEdit()
-        period_lb = QLabel("period")
-        period_val = QTextEdit()
         short_term_lb = QLabel("short term")
         short_term_val = QTextEdit()
         medium_term_lb = QLabel("medium term")
@@ -278,10 +307,6 @@ class EmaOption(OptionSection):
         long_term_val = QTextEdit()
 
         # layout
-        self.layout().addWidget(investment_lb, 0, 0)
-        self.layout().addWidget(investment_val, 0, 1)
-        self.layout().addWidget(period_lb, 1, 0)
-        self.layout().addWidget(period_val, 1, 1)
         self.layout().addWidget(short_term_lb, 2, 0)
         self.layout().addWidget(short_term_val, 2, 1)
         self.layout().addWidget(medium_term_lb, 3, 0)
