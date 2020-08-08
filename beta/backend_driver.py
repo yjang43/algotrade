@@ -25,7 +25,7 @@ class BackendDriver:
 
     @staticmethod
     def start_session(session):
-        session.run()
+        session.start()
 
     def create_session(self, class_name, options: List):
         # get Session class that was mapped in algorithm_session_map
@@ -37,7 +37,9 @@ class BackendDriver:
 
     def kill_session(self, session_id):
         # TODO: kill_session function of Session class needs to be updated
-        self.session_container[session_id].kill_session()
+        #       and uncomment the line under
+        # self.session_container[session_id].kill_session()
+        self.session_container.pop(session_id)
         pass
 
     def _session_number_generator(self):

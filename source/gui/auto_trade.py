@@ -107,7 +107,7 @@ class AutoTradePage(PageWidget):
 
             # algorithm runs in the back
             algorithm_process = self.backend_driver.create_session(self.current_algorithm, parameters)
-            algorithm_process.run()
+            algorithm_process.start()
 
             # add session addition history to sessions
             df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
@@ -199,7 +199,7 @@ class AutoTradePage(PageWidget):
             # print(str(row) + str(col))
             item = session_table.item(row, 1)
             if item is not None:
-                self.session_num_clicked = int(session_table.item(row, 1).text())
+                self.session_num_clicked = session_table.item(row, 1).text()
                 self.session_df_row = row
             # print(self.session_num_clicked)
 
@@ -210,9 +210,9 @@ class AutoTradePage(PageWidget):
             df = pd.read_csv("source/back_processing/sessions.csv")
             df = session_df.drop(self.session_df_row, axis='index')
             df = df.reset_index(drop=True)
-            df.to_csv("source/back_processing/sessions.csv", clickindex=False)
+            df.to_csv("source/back_processing/sessions.csv", index=False)
             # TODO: Yet incomplete function
-            self.backend_driver.kill_process(self.session_num_ed)
+            self.backend_driver.kill_session(self.session_num_clicked)
             self.session_df_row = -1
             self.session_num_clicked = -1
             self.update_session()
