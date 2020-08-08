@@ -3,11 +3,11 @@ import Session
 
 class EmaSession(Session.Session):
 
-    def __init__(self, session_id, order_queue, initial_investment=100, currency="BTC/USDT", *args):
+    def __init__(self, session_id, order_queue, initial_investment, currency, short_term, medium_term, long_term):
         Session.Session.__init__(self, session_id, order_queue, initial_investment, currency)
-        self.shortterm = args[0]
-        self.mediumterm = args[1]
-        self.longterm = args[2]
+        self.shortterm = short_term
+        self.mediumterm = medium_term
+        self.longterm = long_term
 
 
     def run(self):

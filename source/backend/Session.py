@@ -3,14 +3,19 @@ import threading
 import time
 import pandas as pd
 
+#define exchange locally
+
 exchange = ccxt.binance()
 markets = exchange.load_markets()
 symbols = exchange.symbols
 currencies = exchange.currencies
 
+exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
+exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
+
 class Session(threading.Thread):
 
-    def __init__(self, session_id, order_queue, initial_investment = 100, currency = "BTC/USDT"):
+    def __init__(self, session_id, order_queue, initial_investment, currency):
         threading.Thread.__init__(self)
         self.session_id = session_id
         self.order_queue = order_queue
@@ -23,7 +28,7 @@ class Session(threading.Thread):
         self.exitFlag = 0
 
     def trade_update(self, trade_structure):
-        # calcProfit()
+        #TODO: calcProfit()
 
         if(int(trade_structure.session_id) != self.session_id):
             print("wrong match")
