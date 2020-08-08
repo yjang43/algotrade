@@ -111,13 +111,12 @@ class AutoTradePage(PageWidget):
 
             # add session addition history to sessions
             df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
-            d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.process_id],
+            d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.session_id],
                  'algorithm': ["algorithm"], 'profit': ['']}    # session data
             df_to_add = pd.DataFrame(d)
             df = df_to_add.append(df, ignore_index=False)
             df.to_csv('source/back_processing/sessions.csv', index=False)
             self.update_session()
-
 
         # set panel general attribute
         panel = QWidget(parent=self)
@@ -197,12 +196,12 @@ class AutoTradePage(PageWidget):
         session_table.setRowCount(5)
 
         def set_session_clicked(row, col):
-            print(str(row) + str(col))
+            # print(str(row) + str(col))
             item = session_table.item(row, 1)
             if item is not None:
                 self.session_num_clicked = int(session_table.item(row, 1).text())
                 self.session_df_row = row
-            print(self.session_num_clicked)
+            # print(self.session_num_clicked)
 
         def kill_session_clicked():
             if self.session_df_row == -1:
@@ -211,8 +210,9 @@ class AutoTradePage(PageWidget):
             df = pd.read_csv("source/back_processing/sessions.csv")
             df = session_df.drop(self.session_df_row, axis='index')
             df = df.reset_index(drop=True)
-            df.to_csv("source/back_processing/sessions.csv", index=False)
-            self.thread_manager.kill_process(self.session_num_clicked)
+            df.to_csv("source/back_processing/sessions.csv", clickindex=False)
+            # TODO: Yet incomplete function
+            self.backend_driver.kill_process(self.session_num_ed)
             self.session_df_row = -1
             self.session_num_clicked = -1
             self.update_session()
