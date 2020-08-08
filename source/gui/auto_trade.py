@@ -3,6 +3,7 @@ from source.gui.pages import *
 from source.back_processing.algorithm_wrapper import run_algorithm, emaalgorithm
 import source.back_processing.thread_control as thread_control
 from beta.backend_driver import BackendDriver
+from source.account_management.my_exchange import Account
 
 
 class AutoTradePage(PageWidget):
@@ -248,10 +249,14 @@ class OptionSection(QWidget):
         """
         parameters = list()
         children = ([child for child in self.children()
-                     if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
+                     if type(child) == QTextEdit or type(child) == QCheckBox or type(child) == QLineEdit])  # retrieve QTextEdit and QCheckBox types
         for child in children:
             if type(child) == QTextEdit:
                 param: str = child.toPlainText()
+                if param.isdigit():
+                    param = int(param)
+            if type(child) == QLineEdit:
+                param: str = child.text()
                 if param.isdigit():
                     param = int(param)
                 else:
@@ -262,9 +267,11 @@ class OptionSection(QWidget):
 
     def reset_values(self):
         children = ([child for child in self.children()
-                     if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
+                     if type(child) == QTextEdit or type(child) == QCheckBox or type(child) == QLineEdit])  # retrieve QTextEdit and QCheckBox types
         for child in children:
             if type(child) == QTextEdit:
+                child.setText("")
+            if type(child) == QLineEdit:
                 child.setText("")
 
 
@@ -280,10 +287,14 @@ class CommonOption(OptionSection):
     def create_options(self):
         # options include initial_investment, currency.
         # presumably session id and queue will be included in a different way.
+        completer = QCompleter(Account.get_markets())
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+
         investment_lb = QLabel("investment")
-        investment_val = QTextEdit()
+        investment_val = QLineEdit()
         market_lb = QLabel("market")
-        market_val = QTextEdit()
+        market_val = QLineEdit()
+        market_val.setCompleter(completer)
 
         self.layout().addWidget(investment_lb, 0, 0)
         self.layout().addWidget(investment_val, 0, 1)
@@ -300,11 +311,11 @@ class EmaOption(OptionSection):
 
         # input
         short_term_lb = QLabel("short term")
-        short_term_val = QTextEdit()
+        short_term_val = QLineEdit()
         medium_term_lb = QLabel("medium term")
-        medium_term_val = QTextEdit()
+        medium_term_val = QLineEdit()
         long_term_lb = QLabel("long term")
-        long_term_val = QTextEdit()
+        long_term_val = QLineEdit()
 
         # layout
         self.layout().addWidget(short_term_lb, 2, 0)
