@@ -10,7 +10,6 @@ from threading import Timer
 import queue
 
 
-
 exchange = ccxt.binance()
 markets = exchange.load_markets()
 symbols = exchange.symbols
@@ -20,12 +19,13 @@ currencies = exchange.currencies
 exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
 exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
 
-pd.set_option('display.float_format', lambda x: '%.5f' % x) #pandas display option
+pd.set_option('display.float_format', lambda x: '%.5f' %
+              x)  # pandas display option
 
 balance = exchange.fetch_balance()
 dfbalance = pd.Series(balance)
 
-#basic data parameters
+# basic data parameters
 coinsowned = []
 coinsownedamount = []
 coinsinbtc = []
@@ -34,13 +34,12 @@ percentagechange = []
 sessions = []
 
 
-
 def setkey(apikey, secretkey):
     exchange.apiKey = apikey
     exchange.secret = secretkey
 
 
-def ohlcvsave(currency = "BTC/USDT"): #function for saving ohclv csv files
+def ohlcvsave(currency="BTC/USDT"):  # function for saving ohclv csv files
     mohlcvlist = exchange.fetch_ohlcv(currency, '1m')
     hohlcvlist = exchange.fetch_ohlcv(currency, '1h')
     dohlcvlist = exchange.fetch_ohlcv(currency, '1d')
@@ -63,17 +62,18 @@ def ohlcvsave(currency = "BTC/USDT"): #function for saving ohclv csv files
     hdfohlcv['Time'] = pd.to_datetime(hdfohlcv['Time'], unit='ms')
     ddfohlcv['Time'] = pd.to_datetime(ddfohlcv['Time'], unit='ms')
     Mdfohlcv['Time'] = pd.to_datetime(Mdfohlcv['Time'], unit='ms')
-    mdfohlcv.to_csv (r'data/minuteohlcv.csv', header=True)
-    hdfohlcv.to_csv (r'data/hourohlcv.csv', header=True)
-    ddfohlcv.to_csv (r'data/dayohlcv.csv', header=True)
-    Mdfohlcv.to_csv (r'data/monthohlcv.csv', header=True)
+    mdfohlcv.to_csv(r'data/minuteohlcv.csv', header=True)
+    hdfohlcv.to_csv(r'data/hourohlcv.csv', header=True)
+    ddfohlcv.to_csv(r'data/dayohlcv.csv', header=True)
+    Mdfohlcv.to_csv(r'data/monthohlcv.csv', header=True)
 
-def getBalance(): 
+
+def getBalance():
     balance = exchange.fetch_balance()
 
     dfbalance = pd.Series(balance)
     rate = exchange.fetch_ticker('BTC/USDT').get("bid")
-    for items in dfbalance.items(): #print the coins that i own
+    for items in dfbalance.items():  # print the coins that i own
         if isinstance(items[1].get("total"), float):
             if (items[1].get("total") > 0):
                 coinsowned.append(items[0])
@@ -83,43 +83,45 @@ def getBalance():
                 elif(items[0] == "SBTC" or items[0] == "BCX" or items[0] == "VTHO"):
                     priceinbtc = 0
                 else:
-                    priceinbtc = (exchange.fetch_ticker(items[0] + "/BTC").get("close") + exchange.fetch_ticker(items[0] + "/BTC").get("open"))/2.0
+                    priceinbtc = (exchange.fetch_ticker(
+                        items[0] + "/BTC").get("close") + exchange.fetch_ticker(items[0] + "/BTC").get("open"))/2.0
                 coinsinbtc.append(items[1].get("total") * priceinbtc)
                 coinsinusd.append(items[1].get("total") * priceinbtc * rate)
-    scoinsowned = pd.Series(coinsownedamount, coinsowned, name = 'amount')
-
+    scoinsowned = pd.Series(coinsownedamount, coinsowned, name='amount')
 
     dfcoinsowned = pd.DataFrame({
-            'balance' : scoinsowned,
-            'in btc' : coinsinbtc,
-            'in usd' : coinsinusd
-        })
+        'balance': scoinsowned,
+        'in btc': coinsinbtc,
+        'in usd': coinsinusd
+    })
     print(dfcoinsowned)
-    dfcoinsowned.to_csv (r'/Users/jae/Documents/Programming/algotrade/source/data/coinsowned.csv', header=True)
+    dfcoinsowned.to_csv(
+        r'/Users/jae/Documents/Programming/algotrade/source/data/coinsowned.csv', header=True)
 
     balanceinusd = 0
     for val in dfcoinsowned["in usd"]:
         balanceinusd += val
     print("Your total balance in USD : $" + str(balanceinusd))
     print("//////////////////////////////////////")
-    return(dfcoinsowned) #returns dataframe
+    return(dfcoinsowned)  # returns dataframe
 
-#initialize variables
+
+# initialize variables
 session_id = 0
 current_session = {}
-order_queue = queue.Queue() # a queue of dictionary for storing orders 
+order_queue = queue.Queue()  # a queue of dictionary for storing orders
 
 x = EmaSession(str(session_id), "session-1", exchange, order_queue)
 # print(x.get_ident())
 # print(x.get_native_id())
 current_session[str(session_id)] = x
-session_id+=1
+session_id += 1
 
 y = EmaSession(str(session_id), "session-2", exchange, order_queue)
 current_session[str(session_id)] = y
-session_id+=1
+session_id += 1
 
-#loop through currentSession dictionary and start each thread
+# loop through currentSession dictionary and start each thread
 for i in current_session.values():
     i.start()
 
@@ -129,13 +131,7 @@ print("///////")
 # print(exchange.fetch_order(210442184, "VET/USDT"))
 # exchange.create_market_sell_order("VET/USDT", 1000, {'newClientOrderId': 'World'})
 
-#take dictionary values from dictionary and make according buy or sell
+# take dictionary values from dictionary and make according buy or sell
 # if(True): #clock signal
 #     while not orderQueue.empty():
 #         val = orderQueue.dequeue()
-        
-
-
-
-
-
