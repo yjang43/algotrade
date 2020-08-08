@@ -33,7 +33,7 @@ class BackendDriver:
     def create_session(self, class_name, options: List):
         # get Session class that was mapped in algorithm_session_map
         session_class = self.algorithm_session_map[class_name]
-        session_number = self._session_number_generator()
+        session_number = str(self._session_number_generator())
         session = session_class(session_number, self.order_queue, *options)
         self.session_container[session.session_id] = session
         return session
