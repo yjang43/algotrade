@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
-from EmaSession import EmaSession
+from source.backend.EmaSession import EmaSession
 from threading import Timer
 import queue
 
@@ -111,23 +111,23 @@ session_id = 0
 current_session = {}
 order_queue = queue.Queue()  # a queue of dictionary for storing orders
 
-x = EmaSession(str(session_id), "session-1", exchange, order_queue)
+x = EmaSession(str(session_id), order_queue, 100, "BTC/KRW", 10, 20, 50)
 # print(x.get_ident())
 # print(x.get_native_id())
 current_session[str(session_id)] = x
 session_id += 1
 
-y = EmaSession(str(session_id), "session-2", exchange, order_queue)
+y = EmaSession(str(session_id), order_queue, 100, "BTC/KRW", 10, 20, 50)
 current_session[str(session_id)] = y
 session_id += 1
 
 # loop through currentSession dictionary and start each thread
 for i in current_session.values():
-    i.start()
+    i.execute()   
 
 
 # print(exchange.fetch_my_trades("VET/USDT"))
-print("///////")
+# print("///////")
 # print(exchange.fetch_order(210442184, "VET/USDT"))
 # exchange.create_market_sell_order("VET/USDT", 1000, {'newClientOrderId': 'World'})
 

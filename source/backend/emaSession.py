@@ -1,4 +1,4 @@
-import Session
+from source.backend import Session
 
 
 class EmaSession(Session.Session):

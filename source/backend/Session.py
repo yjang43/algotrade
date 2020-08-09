@@ -16,7 +16,7 @@ exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwg
 class Session(threading.Thread):
 
     def __init__(self, session_id, order_queue, initial_investment, currency):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon= True)
         self.session_id = session_id
         self.order_queue = order_queue
         self.counter = 0
