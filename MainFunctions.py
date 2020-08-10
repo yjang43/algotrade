@@ -116,15 +116,15 @@ x = EmaSession(str(session_id), order_queue, 100, "BTC/BKRW", 10, 20, 50)
 # print(x.get_native_id())
 current_session[str(session_id)] = x
 session_id += 1
+print(session_id)
 
-y = EmaSession(str(session_id), order_queue, 100, "BTC/BKRW", 10, 20, 50)
+y = EmaSession(str(session_id), order_queue, 200, "BTC/BKRW", 10, 30, 60)
 current_session[str(session_id)] = y
 session_id += 1
 
-print(x.calc_profit())
 # loop through currentSession dictionary and start each thread
-# for i in current_session.values():
-#     i.execute()   
+for i in current_session.values():
+    i.execute()   
 
 
 # print(exchange.fetch_my_trades("VET/USDT"))
