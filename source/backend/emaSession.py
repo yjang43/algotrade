@@ -1,6 +1,5 @@
 from source.backend import Session
 
-
 class EmaSession(Session.Session):
 
     def __init__(self, session_id, order_queue, initial_investment, currency, short_term, medium_term, long_term):
