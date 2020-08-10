@@ -20,6 +20,7 @@ class Session(threading.Thread):
         self.session_id = session_id
         self.order_queue = order_queue
         self.counter = 0
+        self.initial_investment = initial_investment
         self.total = initial_investment
         self.totalcoin = 0
         self.totalcash = initial_investment
@@ -40,6 +41,24 @@ class Session(threading.Thread):
                 self.totalcoin -= trade_structure.amount * trade_structure.price
                 self.totalcash += trade_structure.amount
         print("Updated balance")
+
+    def calc_balance(self):
+        #calculates the current valuation
+        current_balance = 0
+        current_balance += self.totalcash
+        current_balance += self.totalcoin * self.fetch_price()
+        return current_balance
+        #return current_balance
+
+    def fetch_price(self):
+        #fetches the latest bid price from exchange
+        orderbook = exchange.fetch_order_book (self.currency)
+        bid = orderbook['bids'][0][0] if len (orderbook['bids']) > 0 else None
+        return bid
+
+    def calc_profit(self):
+        #returns profit in percentage
+        return (self.calc_balance()-self.initial_investment)/self.initial_investment * 100
 
     # calc current balance and
     # def calc_profit():

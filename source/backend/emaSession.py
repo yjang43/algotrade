@@ -9,7 +9,6 @@ class EmaSession(Session.Session):
         self.mediumterm = medium_term
         self.longterm = long_term
 
-
     def run(self):
         print("Starting ", self.session_id)
         # run algorithm that checks ema every 10seconds
