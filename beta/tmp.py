@@ -7,9 +7,9 @@ order_queue = queue.Queue()
 order0 = {
     'session_id': 'demo_session',
     'order_info': {
-        'symbol': 'VET/USDT',
+        'symbol': 'VTHO/USDT',
         'side': 'sell',
-        'amount': 1000
+        'amount': 11433
     }
 }
 order1 = {
@@ -20,8 +20,8 @@ order1 = {
         'amount': 1000
     }
 }
-order_queue.put(order0)
-order_queue.put(order1)
+# order_queue.put(order0)
+# order_queue.put(order1)
 
 
 """structure
