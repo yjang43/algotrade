@@ -3,6 +3,7 @@ from source.gui.pages import *
 from source.back_processing.algorithm_wrapper import run_algorithm, emaalgorithm
 import source.back_processing.thread_control as thread_control
 from beta.backend_driver import BackendDriver
+from source.account_management.my_exchange import Account
 
 
 class AutoTradePage(PageWidget):
@@ -107,17 +108,16 @@ class AutoTradePage(PageWidget):
 
             # algorithm runs in the back
             algorithm_process = self.backend_driver.create_session(self.current_algorithm, parameters)
-            algorithm_process.run()
+            algorithm_process.start()
 
             # add session addition history to sessions
             df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
-            d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.process_id],
+            d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.session_id],
                  'algorithm': ["algorithm"], 'profit': ['']}    # session data
             df_to_add = pd.DataFrame(d)
             df = df_to_add.append(df, ignore_index=False)
             df.to_csv('source/back_processing/sessions.csv', index=False)
             self.update_session()
-
 
         # set panel general attribute
         panel = QWidget(parent=self)
@@ -197,12 +197,12 @@ class AutoTradePage(PageWidget):
         session_table.setRowCount(5)
 
         def set_session_clicked(row, col):
-            print(str(row) + str(col))
+            # print(str(row) + str(col))
             item = session_table.item(row, 1)
             if item is not None:
-                self.session_num_clicked = int(session_table.item(row, 1).text())
+                self.session_num_clicked = session_table.item(row, 1).text()
                 self.session_df_row = row
-            print(self.session_num_clicked)
+            # print(self.session_num_clicked)
 
         def kill_session_clicked():
             if self.session_df_row == -1:
@@ -212,7 +212,8 @@ class AutoTradePage(PageWidget):
             df = session_df.drop(self.session_df_row, axis='index')
             df = df.reset_index(drop=True)
             df.to_csv("source/back_processing/sessions.csv", index=False)
-            self.thread_manager.kill_process(self.session_num_clicked)
+            # TODO: Yet incomplete function
+            self.backend_driver.kill_session(self.session_num_clicked)
             self.session_df_row = -1
             self.session_num_clicked = -1
             self.update_session()
@@ -248,10 +249,14 @@ class OptionSection(QWidget):
         """
         parameters = list()
         children = ([child for child in self.children()
-                     if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
+                     if type(child) == QTextEdit or type(child) == QCheckBox or type(child) == QLineEdit])  # retrieve QTextEdit and QCheckBox types
         for child in children:
             if type(child) == QTextEdit:
                 param: str = child.toPlainText()
+                if param.isdigit():
+                    param = int(param)
+            if type(child) == QLineEdit:
+                param: str = child.text()
                 if param.isdigit():
                     param = int(param)
                 else:
@@ -262,9 +267,11 @@ class OptionSection(QWidget):
 
     def reset_values(self):
         children = ([child for child in self.children()
-                     if type(child) == QTextEdit or type(child) == QCheckBox])  # retrieve QTextEdit and QCheckBox types
+                     if type(child) == QTextEdit or type(child) == QCheckBox or type(child) == QLineEdit])  # retrieve QTextEdit and QCheckBox types
         for child in children:
             if type(child) == QTextEdit:
+                child.setText("")
+            if type(child) == QLineEdit:
                 child.setText("")
 
 
@@ -280,10 +287,14 @@ class CommonOption(OptionSection):
     def create_options(self):
         # options include initial_investment, currency.
         # presumably session id and queue will be included in a different way.
+        completer = QCompleter(Account.get_markets())
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+
         investment_lb = QLabel("investment")
-        investment_val = QTextEdit()
+        investment_val = QLineEdit()
         market_lb = QLabel("market")
-        market_val = QTextEdit()
+        market_val = QLineEdit()
+        market_val.setCompleter(completer)
 
         self.layout().addWidget(investment_lb, 0, 0)
         self.layout().addWidget(investment_val, 0, 1)
@@ -300,11 +311,11 @@ class EmaOption(OptionSection):
 
         # input
         short_term_lb = QLabel("short term")
-        short_term_val = QTextEdit()
+        short_term_val = QLineEdit()
         medium_term_lb = QLabel("medium term")
-        medium_term_val = QTextEdit()
+        medium_term_val = QLineEdit()
         long_term_lb = QLabel("long term")
-        long_term_val = QTextEdit()
+        long_term_val = QLineEdit()
 
         # layout
         self.layout().addWidget(short_term_lb, 2, 0)

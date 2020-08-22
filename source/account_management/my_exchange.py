@@ -50,5 +50,9 @@ class Account:
             raise ccxt.errors.AuthenticationError()
         return cls.balance[coin]['total']
 
+    @classmethod
+    def get_markets(cls):
+        return cls.exchange.markets.keys()
+
 
 

@@ -25,18 +25,22 @@ class BackendDriver:
 
     @staticmethod
     def start_session(session):
-        session.run()
-
-    def remove_session(self):
-        pass
+        session.start()
 
     def create_session(self, class_name, options: List):
         # get Session class that was mapped in algorithm_session_map
         session_class = self.algorithm_session_map[class_name]
-        session_number = str(self._session_number_generator())
-        session = session_class(session_number, self.order_queue, *options)
+        session_id = str(self._session_number_generator())
+        session = session_class(session_id, self.order_queue, *options)
         self.session_container[session.session_id] = session
         return session
+
+    def kill_session(self, session_id):
+        # TODO: kill_session function of Session class needs to be updated
+        #       and uncomment the line under
+        # self.session_container[session_id].kill_session()
+        self.session_container.pop(session_id)
+        pass
 
     def _session_number_generator(self):
         # generate un-repetitive value
