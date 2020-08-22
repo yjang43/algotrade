@@ -87,9 +87,8 @@ class EmaSession(Session.Session):
         dfma.columns = ['Short-term MA (MA' + str(self.shortterm) + ')', 'Short-term EMA (EMA' + str(self.shortterm) + ')',
                         'Medium-term EMA (EMA' + str(self.mediumterm) + ')', 'Long-term EMA (EMA' + str(self.longterm) + ')']
         dfma.to_csv(
-            '/source/data/1dayma.csv', header=True)
+            'source/data/1dayma.csv', header=True)
         return dfma
-
 
     def emacheck(self, shortterm, mediumterm, longterm):
         buysignal = False

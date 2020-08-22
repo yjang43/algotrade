@@ -259,8 +259,6 @@ class OptionSection(QWidget):
                 param: str = child.text()
                 if param.isdigit():
                     param = int(param)
-                else:
-                    param = -1  # sentinel value
             # TODO: figure out what todo for QCheckBox case
                 parameters.append(param)
         return parameters
