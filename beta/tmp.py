@@ -3,17 +3,19 @@
 
 import queue
 
+from source.backend.Session import Session
+
 order_queue = queue.Queue()
 order0 = {
-    'session_id': 'demo_session',
+    'session_id': '0',
     'order_info': {
         'symbol': 'VET/USDT',
-        'side': 'buy',
-        'amount': 1100
+        'side': 'sell',
+        'amount': 999.8
     }
 }
 order1 = {
-    'session_id': 'demo_session',
+    'session_id': '1',
     'order_info': {
         'symbol': 'NULS/USDT',
         'side': 'sell',
@@ -26,4 +28,4 @@ order1 = {
 
 """structure
 {string: Session}"""
-session_container = {}
+session_container = {'0': Session(0,0,0,0)}
