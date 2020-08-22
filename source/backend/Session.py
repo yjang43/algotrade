@@ -16,10 +16,11 @@ exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwg
 class Session(threading.Thread):
 
     def __init__(self, session_id, order_queue, initial_investment, currency):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon= True)
         self.session_id = session_id
         self.order_queue = order_queue
         self.counter = 0
+        self.initial_investment = initial_investment
         self.total = initial_investment
         self.totalcoin = 0
         self.totalcash = initial_investment
@@ -28,8 +29,6 @@ class Session(threading.Thread):
         self.exitFlag = 0
 
     def trade_update(self, trade_structure):
-        #TODO: calcProfit()
-
         if(int(trade_structure.session_id) != self.session_id):
             print("wrong match")
         else:
@@ -40,9 +39,24 @@ class Session(threading.Thread):
                 self.totalcoin -= trade_structure.amount * trade_structure.price
                 self.totalcash += trade_structure.amount
         print("Updated balance")
+        self.calc_profit()
+        print(self.totalprofit)
 
-    # calc current balance and
-    # def calc_profit():
+    def calc_balance(self):
+        #calculates the current valuation
+        current_balance = 0
+        current_balance += self.totalcash
+        current_balance += self.totalcoin * self.fetch_price()
+        self.total = current_balance
+        return self.total
 
-    # fetch current price and calculate current valuation of total
-    # def update_balance():
+    def fetch_price(self):
+        #fetches the latest bid price from exchange
+        orderbook = exchange.fetch_order_book (self.currency)
+        bid = orderbook['bids'][0][0] if len (orderbook['bids']) > 0 else None #highest price a buyer will pay for security
+        ask = orderbook['asks'][0][0] if len (orderbook['asks']) > 0 else None #lowest price a seller will accept for security
+        return ask
+
+    def calc_profit(self):
+        #returns profit in percentage
+        self.totalprofit = (self.calc_balance()-self.initial_investment)/self.initial_investment * 100

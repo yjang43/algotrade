@@ -1,5 +1,4 @@
-import Session
-
+from source.backend import Session
 
 class EmaSession(Session.Session):
 
@@ -8,7 +7,6 @@ class EmaSession(Session.Session):
         self.shortterm = short_term
         self.mediumterm = medium_term
         self.longterm = long_term
-
 
     def run(self):
         print("Starting ", self.session_id)
@@ -42,8 +40,6 @@ class EmaSession(Session.Session):
                     }
                 }
                 self.order_queue.put(buyorder)
-                # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
-                # if(success, retrieve transaction history and make according changes to balance):
                 # self.totalcash -= mytrade.cost
                 # self.totalcoin += mytrade.amount
                 print("BUY")
@@ -59,17 +55,17 @@ class EmaSession(Session.Session):
                     }
                 }
                 self.order_queue.put(sellorder)
-                # mytrade = exchange.fetch_my_trades (symbol = currency, since = None, limit = None, params = {})
-                # if(success, retrieve transaction history and make according changes to balance):
                 # self.totalcoin -= mytrade.amount
                 # self.totalcash += mytrade.cost
                 print("SELL")
             else:
                 print("PASS")
+            
+            self.calc_profit() #also updates total
             print("total : ", self.total)
             print("total cash : ", self.totalcash)
             print("total coin : ", self.totalcoin)
-            print("total profit : ", self.totalprofit)
+            print("total profit : ", self.totalprofit, "%")
             Session.time.sleep(10)  # check every 10 seconds
             self.counter = self.counter + 1
 
