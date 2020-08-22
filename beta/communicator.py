@@ -7,6 +7,7 @@ import ccxt
 from beta.APIFeeder import APIFeeder
 from beta.clock import Clock
 from beta.tmp import order_queue
+from beta.tmp import session_container
 
 
 class Communicator(threading.Thread):
@@ -25,7 +26,7 @@ class Communicator(threading.Thread):
         self.alarm = threading.Event()
         self.since = {'default': int(datetime.now().timestamp() * 1000)}    # since for each symbol
 
-        self.order_track = []
+        self.symbol_tracker = set()
 
     def run(self):
         while self.is_program_running:
@@ -38,6 +39,7 @@ class Communicator(threading.Thread):
             print("alarm alarm!")
             api_feeder = APIFeeder()
             api_feeder.set_queue(order_queue)
+            api_feeder.set_session_container(session_container)
             api_feeder.start()
             print(f"since value right now is: {self.since}")
             # # need to set it as join for now
