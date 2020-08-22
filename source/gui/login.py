@@ -4,7 +4,6 @@ import ccxt
 import time
 
 from source.account_management.my_exchange import Account
-from tmp_do_not_add import apiKey, secret
 
 
 class LoginDialog(QDialog):
@@ -15,8 +14,10 @@ class LoginDialog(QDialog):
         self.status = QLabel()
         self.status.setText("enter your account information")
         self.loginID = QTextEdit('Public Key here...')
+        self.loginID = QTextEdit('nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13')
         self.loginID.setFixedHeight(50)
         self.loginPW = QTextEdit('Private Key here...')
+        self.loginPW = QTextEdit('0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1')
         self.loginPW.setFixedHeight(50)
         self.enter = QPushButton('Enter')
         self.enter.clicked.connect(self.check_account)
@@ -31,8 +32,6 @@ class LoginDialog(QDialog):
         # for develop purpose I bring keys from "tmp_do_not_add.py"
         public_key = self.loginID.toPlainText()
         private_key = self.loginPW.toPlainText()
-        public_key = apiKey
-        private_key = secret
         # exchange = ccxt.binance()
         # exchange.apiKey = public_key
         # exchange.secret = private_key

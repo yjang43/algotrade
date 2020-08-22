@@ -21,9 +21,11 @@ class BackendDriver:
             'ema': EmaSession,
             # ...
         }
+        self.session_count = 0
 
-    def start_session(self, session):
-        pass
+    @staticmethod
+    def start_session(session):
+        session.run()
 
     def remove_session(self):
         pass
@@ -31,7 +33,13 @@ class BackendDriver:
     def create_session(self, class_name, options: List):
         # get Session class that was mapped in algorithm_session_map
         session_class = self.algorithm_session_map[class_name]
-        session = session_class(*options)
+        session_number = str(self._session_number_generator())
+        session = session_class(session_number, self.order_queue, *options)
         self.session_container[session.session_id] = session
         return session
 
+    def _session_number_generator(self):
+        # generate un-repetitive value
+        session_number = self.session_count
+        self.session_count += 1
+        return session_number
