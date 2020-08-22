@@ -7,9 +7,9 @@ order_queue = queue.Queue()
 order0 = {
     'session_id': 'demo_session',
     'order_info': {
-        'symbol': 'VTHO/USDT',
-        'side': 'sell',
-        'amount': 11433
+        'symbol': 'VET/USDT',
+        'side': 'buy',
+        'amount': 1100
     }
 }
 order1 = {

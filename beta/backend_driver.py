@@ -7,16 +7,17 @@ from typing import List
 
 from beta.communicator import Communicator
 from source.backend.emaSession import EmaSession
+from beta.tmp import order_queue, session_container
 
 
-# TODO: Long and painful integration process is needed
-#       More general Session class needs to be designed
-#       What about order_queue and others for param?
 class BackendDriver:
     def __init__(self):
+        self.session_container = session_container
+        self.order_queue = order_queue
         self.communicator = Communicator()
-        self.session_container = {}
-        self.order_queue = queue.Queue()
+        self.communicator.set_order_queue(self.order_queue)
+        self.communicator.set_session_container(self.session_container)
+        self.communicator.start()
         self.algorithm_session_map = {
             'ema': EmaSession,
             # ...

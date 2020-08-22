@@ -6,14 +6,12 @@ import ccxt
 
 from beta.APIFeeder import APIFeeder
 from beta.clock import Clock
-from beta.tmp import order_queue
-from beta.tmp import session_container
 
 
 class Communicator(threading.Thread):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(daemon=True)
 
         self.exchange = ccxt.binance()
         self.exchange.apiKey = "nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13"
@@ -28,18 +26,25 @@ class Communicator(threading.Thread):
 
         self.symbol_tracker = set()
 
+        self.order_queue = None
+        self.session_container = None
+
     def run(self):
         while self.is_program_running:
             # init clock
-            Clock(3).start()
+            print(f'CURRENT THREAD NUMBER: {threading.active_count()}')
+            Clock(5).start()
             while not self.alarm.is_set():
                 time.sleep(1)
-                self.count += 1
-                print(f"communicator count is {self.count}")
-            print("alarm alarm!")
+                pass
+                # time.sleep(1)
+                # self.count += 1
+                # print(f"communicator count is {self.count}")
             api_feeder = APIFeeder()
-            api_feeder.set_queue(order_queue)
-            api_feeder.set_session_container(session_container)
+            if self.order_queue is None or self.session_container is None:
+                print("NEED TO CALL SETTERS FOR ORDER_QUEUE AND SESSION_CONTAINER")
+            api_feeder.set_queue(self.order_queue)
+            api_feeder.set_session_container(self.session_container)
             api_feeder.start()
             print(f"since value right now is: {self.since}")
             # # need to set it as join for now
@@ -55,6 +60,10 @@ class Communicator(threading.Thread):
                 return True
         return False
 
+    def set_session_container(self, session_container):
+        self.session_container = session_container
 
+    def set_order_queue(self, order_queue):
+        self.order_queue = order_queue
 
 

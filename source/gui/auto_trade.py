@@ -113,7 +113,7 @@ class AutoTradePage(PageWidget):
             # add session addition history to sessions
             df: pd.DataFrame = pd.read_csv('source/back_processing/sessions.csv')
             d = {'date': [thread_control.cur_datetime()], 'session_num': [algorithm_process.session_id],
-                 'algorithm': ["algorithm"], 'profit': ['']}    # session data
+                 'algorithm': [self.current_algorithm], 'profit': [0]}    # session data
             df_to_add = pd.DataFrame(d)
             df = df_to_add.append(df, ignore_index=False)
             df.to_csv('source/back_processing/sessions.csv', index=False)

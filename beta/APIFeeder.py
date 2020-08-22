@@ -102,8 +102,9 @@ class APIFeeder(threading.Thread):
                     order = self.queue.get()
                     session_id = order['session_id']
                     order_info = order['order_info']
+                    print('HOW THE FUCK THAT HAPPENED')
                     self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
-                                                      order_info['amount'], {'clientOrderId': session_id})
+                                                      order_info['amount'], params={'clientOrderId': session_id})
                     self.add_symbol_to_tracker(order_info['symbol'])
                 queue_length -= 1
         except HTTPError:
