@@ -68,6 +68,8 @@ class EmaSession(Session.Session):
             print("total profit : ", self.totalprofit, "%")
             Session.time.sleep(10)  # check every 10 seconds
             self.counter = self.counter + 1
+            if self.termination_flag:
+                break
 
     def emaFetch(self):
         dohlcvlist = Session.exchange.fetch_ohlcv("BTC/USDT", '1d')

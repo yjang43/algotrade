@@ -26,7 +26,7 @@ class Session(threading.Thread):
         self.totalcash = initial_investment
         self.totalprofit = 0
         self.currency = currency
-        self.exitFlag = 0
+        self.termination_flag = False
 
     def trade_update(self, trade_structure):
         if(int(trade_structure.session_id) != self.session_id):
@@ -60,3 +60,6 @@ class Session(threading.Thread):
     def calc_profit(self):
         #returns profit in percentage
         self.totalprofit = (self.calc_balance()-self.initial_investment)/self.initial_investment * 100
+
+    def kill_session(self):
+        self.termination_flag = True

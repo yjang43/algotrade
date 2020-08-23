@@ -38,7 +38,7 @@ class BackendDriver:
     def kill_session(self, session_id):
         # TODO: kill_session function of Session class needs to be updated
         #       and uncomment the line under
-        # self.session_container[session_id].kill_session()
+        self.session_container[session_id].kill_session()
         self.session_container.pop(session_id)
         pass
 
