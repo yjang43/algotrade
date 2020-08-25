@@ -22,6 +22,9 @@ class EmaSession(Session.Session):
     def execute(self):
         # execute respective session
         # buy in
+        test = {"counter":[], "status":[], "total":[], "total cash":[], "total coin":[], "total profit":[]}
+        session_record = Session.pd.DataFrame.from_dict(test)
+        session_record = session_record.set_index("counter")
         while True:
             print("Session ID : ", self.session_id,
                   " counter : ", self.counter)
@@ -29,7 +32,7 @@ class EmaSession(Session.Session):
                 self.shortterm, self.mediumterm, self.longterm)
             if(checkresult[0]):
                 # BUY, account for price slippage
-                buyamount = (1/2) * self.totalcash
+                buyamount = self.totalcash
                 # once bought, subtract the amount from balance
                 buyorder = {
                     "session_id": self.session_id,
@@ -42,10 +45,11 @@ class EmaSession(Session.Session):
                 self.order_queue.put(buyorder)
                 # self.totalcash -= mytrade.cost
                 # self.totalcoin += mytrade.amount
+                status = "BUY"
                 print("BUY")
             elif(checkresult[1]):
                 # SELL
-                sellamount = (1/2) * self.totalcoin
+                sellamount = self.totalcoin
                 sellorder = {
                     "session_id": self.session_id,
                     "order_structure": {
@@ -57,8 +61,10 @@ class EmaSession(Session.Session):
                 self.order_queue.put(sellorder)
                 # self.totalcoin -= mytrade.amount
                 # self.totalcash += mytrade.cost
+                status = "SELL"
                 print("SELL")
             else:
+                status = "PASS"
                 print("PASS")
             
             self.calc_profit() #also updates total
@@ -66,6 +72,12 @@ class EmaSession(Session.Session):
             print("total cash : ", self.totalcash)
             print("total coin : ", self.totalcoin)
             print("total profit : ", self.totalprofit, "%")
+            values = {"counter":[self.counter], "status":[status], "total":[self.total], "total cash":[self.totalcash], "total coin":[self.totalcoin], "total profit":[self.totalprofit]}
+            session_record1 = Session.pd.DataFrame.from_dict(values)
+            session_record1 = session_record1.set_index("counter")
+            session_record = session_record.append(session_record1)
+            session_record.to_csv("source/data/summary.csv", index = True)
+
             Session.time.sleep(10)  # check every 10 seconds
             self.counter = self.counter + 1
             if self.termination_flag:
