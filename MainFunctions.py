@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
-from source.backend.EmaSession import EmaSession
+from source.backend.emaSession import EmaSession
 from threading import Timer
 import queue
 
