@@ -31,15 +31,15 @@ class Session(threading.Thread):
         self.termination_flag = False
 
     def trade_update(self, trade_structure):
-        if(int(trade_structure.session_id) != self.session_id):
+        if(int(trade_structure["session_id"]) != self.session_id):
             print("wrong match")
         else:
-            if(trade_structure.side == "buy"):
-                self.totalcoin += trade_structure.amount * trade_structure.price
-                self.totalcash -= trade_structure.amount
-            elif(trade_structure.side == "sell"):
-                self.totalcoin -= trade_structure.amount * trade_structure.price
-                self.totalcash += trade_structure.amount
+            if(trade_structure["side"] == "buy"):
+                self.totalcoin += trade_structure["amount"] * trade_structure["price"]
+                self.totalcash -= trade_structure["amount"]
+            elif(trade_structure["side"] == "sell"):
+                self.totalcoin -= trade_structure["amount"] * trade_structure["price"]
+                self.totalcash += trade_structure["amount"]
         print("Updated balance")
         self.calc_profit()
         print(self.totalprofit)
