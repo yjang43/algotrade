@@ -28,4 +28,4 @@ order1 = {
 
 """structure
 {string: Session}"""
-session_container = {'0': Session(0,0,0,0)}
+session_container = {}
