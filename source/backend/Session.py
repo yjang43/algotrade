@@ -13,6 +13,8 @@ currencies = exchange.currencies
 exchange.apiKey = 'nOK54jyAMTSkrCicsBtqZErob8SORYj3qXjrIull8PSgkSs4dVxSbVz9HIYkpv13'
 exchange.secret = '0l93ZNwaAzHaWGSiphrKvFJw0w9BH3nT5NlcLvQbfXotx4tbdOW5sTfqBAbwgON1'
 
+#base currency and quote currency
+
 class Session(threading.Thread):
 
     def __init__(self, session_id, order_queue, initial_investment, currency):

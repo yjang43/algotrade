@@ -29,7 +29,7 @@ class EmaSession(Session.Session):
                 self.shortterm, self.mediumterm, self.longterm)
             if(checkresult[0]):
                 # BUY, account for price slippage
-                buyamount = (1/2) * self.totalcash
+                buyamount = self.totalcash
                 # once bought, subtract the amount from balance
                 buyorder = {
                     "session_id": self.session_id,
@@ -45,7 +45,7 @@ class EmaSession(Session.Session):
                 print("BUY")
             elif(checkresult[1]):
                 # SELL
-                sellamount = (1/2) * self.totalcoin
+                sellamount = self.totalcoin
                 sellorder = {
                     "session_id": self.session_id,
                     "order_structure": {
