@@ -48,6 +48,7 @@ class Account:
     def get_coin_balance(cls, coin: str):
         if not cls.is_login_correct:
             raise ccxt.errors.AuthenticationError()
+        cls.balance = cls.exchange.fetch_balance()
         return cls.balance[coin]['total']
 
     @classmethod

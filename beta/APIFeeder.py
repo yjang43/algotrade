@@ -1,8 +1,10 @@
 import threading
 from typing import TYPE_CHECKING
-import queue
 from requests import HTTPError
 from pprint import pprint
+from datetime import datetime
+
+import pandas as pd
 
 if TYPE_CHECKING:
     from beta.communicator import Communicator
@@ -80,6 +82,22 @@ class APIFeeder(threading.Thread):
             #       We need to integrate session_container (or current_session) with APIFeeder
             # find session_id and update trade accordingly
             self.session_container[session_id].trade_update(trade_structure)
+            self._add_trade_history(trade_structure)
+
+    @staticmethod
+    def _add_trade_history(trade_structure):
+        print("ADDING TRADE HISTORY")
+        cur_date = datetime.now().strftime("%d/%m/%y")
+        cur_time = datetime.now().strftime("%H:%M:%S")
+        cur = (str(cur_date) + "-" + str(cur_time))
+        df: pd.DataFrame = pd.read_csv('source/gui/trade_history.csv')
+        d = {'date': [cur], 'session_num': [trade_structure['session_id']],
+             'buy_sell': [trade_structure['side']],
+             'amount': [f"{trade_structure['amount']*trade_structure['price']}$"]}  # session data
+        print(d)
+        df_to_add = pd.DataFrame(d)
+        df = df_to_add.append(df, ignore_index=False)
+        df.to_csv('source/gui/trade_history.csv', index=False)
 
     def order_from_queue(self):
         if not self.queue:
@@ -102,8 +120,9 @@ class APIFeeder(threading.Thread):
                     order = self.queue.get()
                     session_id = order['session_id']
                     order_info = order['order_info']
+                    print('HOW THE FUCK THAT HAPPENED')
                     self.caller.exchange.create_order(order_info['symbol'], 'market', order_info['side'],
-                                                      order_info['amount'], {'clientOrderId': session_id})
+                                                      order_info['amount'], params={'clientOrderId': session_id})
                     self.add_symbol_to_tracker(order_info['symbol'])
                 queue_length -= 1
         except HTTPError:
