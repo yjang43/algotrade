@@ -7,7 +7,7 @@ print(root)
 sys.path.append(root)
 
 from PyQt5.QtWidgets import *
-import source.gui.main_window as run
+import frontend.main_window as run
 
 app = QApplication(sys.argv)
 main_window = run.MainWindow()
