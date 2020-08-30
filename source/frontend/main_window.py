@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import *
 
 
-from frontend.common import PageButtons
-from frontend.account import AccountPage
-from frontend.auto_trade import AutoTradePage
-from frontend.data_visualization import DataVisualizationPage
-from frontend.login import LoginDialog
+from .common import PageButtons
+from .account import AccountPage
+from .auto_trade import AutoTradePage
+from .data_visualization import DataVisualizationPage
+from .login import LoginDialog
 from backend.beta.backend_driver import BackendDriver
 
 

@@ -77,7 +77,7 @@ class EmaSession(Session.Session):
             session_record1 = Session.pd.DataFrame.from_dict(values)
             session_record1 = session_record1.set_index("counter")
             session_record = session_record.append(session_record1)
-            session_record.to_csv("source/data/summary.csv", index = True)
+            session_record.to_csv("backend/data/summary.csv", index = True)
 
             Session.time.sleep(10)  # check every 10 seconds
             self.counter = self.counter + 1
